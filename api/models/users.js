@@ -7,6 +7,10 @@ var Schema = mongoose.Schema;
 
 
 var UsersSchema = new Schema({
+    name: {
+        type: String,
+        required: true
+    },
     email: {
         type: String,
         unique: true,
@@ -15,7 +19,7 @@ var UsersSchema = new Schema({
     hash: String,
     salt: String,
 
-    created_date: {
+    created_by: {
         type: Date,
         default: Date.now
     },
