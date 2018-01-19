@@ -38,6 +38,7 @@ lineSchema.methods.logEvent = function () {
     console.log("Logging line update event,");
     var event = LineEvent();
     event.user_id = this.user_id;
+    event.employer_id = this.employer_id;
     event.status = this.status;
     event.save(function(err) {
         if (err)
