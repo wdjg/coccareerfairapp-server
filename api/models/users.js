@@ -5,7 +5,6 @@ var jwt = require('jsonwebtoken');
 
 var Schema = mongoose.Schema;
 
-
 var UsersSchema = new Schema({
     name: {
         type: String,
@@ -38,11 +37,11 @@ var UsersSchema = new Schema({
 
 UsersSchema.methods.setPassword = function (password) {
     this.salt = crypto.randomBytes(16).toString('hex');
-    this.hash = crypto.pbkdf2Sync(password, this.salt, 1000, 64).toString('hex');
+    this.hash = crypto.pbkdf2Sync(password, this.salt, 1000, 64, 'sha512').toString('hex');
 };
 
 UsersSchema.methods.validPassword = function (password) {
-    var hash = crypto.pbkdf2Sync(password, this.salt, 1000, 64).toString('hex');
+    var hash = crypto.pbkdf2Sync(password, this.salt, 1000, 64, 'sha512').toString('hex');
     return this.hash === hash;
 };
 
