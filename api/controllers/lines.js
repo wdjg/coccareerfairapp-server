@@ -43,9 +43,14 @@ module.exports.createLine = function (req, res) {
         res.status(401).json({
             "message": "UnauthorizedError: Need to be logged in"
         });
+    } else if (!req.body.employer_id){
+        res.status(400).json({
+            "message": "InputError: Need to have employer_id defined"
+        });
     } else {
         var line = Line();
         line.user_id = req.user._id
+        line.employer_id = req.body.employer_id
         line.logEvent();
         line.save(function(err){
             if(err)

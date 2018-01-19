@@ -24,7 +24,7 @@ module.exports.getEmployerBySearch = function (req, res) {
         });
     } else if (!req.query.name) {
         res.status(401).json({
-            "message": "InputError: Missing name parameter"
+            "message": "InputError: Missing name parameter in url"
         });
     } else {
         Employer.findOne({name: req.query.name}).exec(function (err, employer) {
@@ -42,7 +42,7 @@ module.exports.createEmployer = function (req, res) {
             "message": "UnauthorizedError: Need to be logged in"
         });
     } else if (!req.body.name) {
-        res.status(401).json({
+        res.status(400).json({
             "message": "InputError: Missing name parameter"
         });
     } else {

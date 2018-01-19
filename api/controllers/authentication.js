@@ -11,7 +11,7 @@ module.exports.register = function (req, res) {
 
     if(!req.body.name || !req.body.email || !req.body.password) {
       sendJSONresponse(res, 400, {
-        "message": "All fields required"
+        "message": "All fields required in body: name, email, password"
       });
       return;
     }
