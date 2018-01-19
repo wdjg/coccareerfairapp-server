@@ -1,14 +1,16 @@
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
+var Line = mongoose.model('Line');
 
-module.exports.getLineByUser = function (req, res) {
+// get /lines
+module.exports.getLineByAuthUser = function (req, res) {
 
-    if (!req.payload._id) {
+    if (!req.user._id) {
         res.status(401).json({
             "message": "UnauthorizedError: Need to be logged in"
         });
     } else {
-        Line.findOne({user_id: req.payload._id}).exec(function (err, line) {
+        Line.findOne({user_id: req.user._id}).exec(function (err, line) {
             if (err)
                 res.send(err);
             res.status(200).json(line)
@@ -17,9 +19,10 @@ module.exports.getLineByUser = function (req, res) {
 
 };
 
+// get /lines/:id
 module.exports.getLineById = function (req, res) {
 
-    if (!req.payload._id) {
+    if (!req.user._id) {
         res.status(401).json({
             "message": "UnauthorizedError: Need to be logged in"
         });
@@ -33,29 +36,36 @@ module.exports.getLineById = function (req, res) {
 
 };
 
+// post /lines
 module.exports.createLine = function (req, res) {
 
-    if (!req.payload._id) {
+    if (!req.user._id) {
         res.status(401).json({
             "message": "UnauthorizedError: Need to be logged in"
         });
     } else {
         var line = Line();
-        line.user_id = req.payload._id
+        line.user_id = req.user._id
         line.logEvent();
-        line.save()
+        line.save(function(err){
+            if(err)
+                res.send(err)
+            res.status(200).json(line)
+        });
     }
 
 };
 
+// put /lines/:id
 module.exports.updateLine = function (req, res) {
 
-    if (!req.payload._id) {
+    if (!req.user._id) {
         res.status(401).json({
             "message": "UnauthorizedError: Need to be logged in"
         });
     } else {
-        Line.findByIdAndUpdate({_id: req.params.id}, req.body).exec(function (err, line) {
+        req.body.updated_by = Date.now;
+        Line.findByIdAndUpdate({_id: req.params.id}, req.body, {new: true}).exec(function (err, line) {
             if (err)
                 res.send(err);
             line.logEvent();
@@ -65,9 +75,10 @@ module.exports.updateLine = function (req, res) {
 
 };
 
+// delete /lines/:id
 module.exports.deleteLine = function (req, res) {
 
-    if (!req.payload._id) {
+    if (!req.user._id) {
         res.status(401).json({
             "message": "UnauthorizedError: Need to be logged in"
         });

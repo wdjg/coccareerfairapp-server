@@ -4,6 +4,10 @@ var lineEventSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    employer_id: {
+        type: String,
+        required: true
+    },
     created_by: {
         type: Date,
         default: Date.now,

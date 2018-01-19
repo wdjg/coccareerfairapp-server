@@ -7,6 +7,10 @@ var lineSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    employer_id: {
+        type: String,
+        required: true
+    },
     created_by: {
         type: Date,
         default: Date.now,
@@ -35,7 +39,10 @@ lineSchema.methods.logEvent = function () {
     var event = LineEvent();
     event.user_id = this.user_id;
     event.status = this.status;
-    event.save();
+    event.save(function(err) {
+        if (err)
+            console.log("Unable to log line event: " + err);
+    });
 }
 
 mongoose.model('Line', lineSchema);

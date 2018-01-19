@@ -23,13 +23,17 @@ var UsersSchema = new Schema({
         type: Date,
         default: Date.now
     },
-    // status: {
-    //     type: [{
-    //         type: String,
-    //         enum: ['pending', 'ongoing', 'completed']
-    //     }],
-    //     default: ['pending']
-    // },
+    user_type: {
+        type: [{
+            type: String,
+            enum: ['student', 'recruiter']
+        }],
+        default: ['student']
+    },
+    employer_id: {
+        type: String,
+        default: null,
+    }
 });
 
 UsersSchema.methods.setPassword = function (password) {
