@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var gracefulShutdown;
-var dbURI = 'mongodb://localhost/meanAuth';
+var dbURI = 'mongodb://localhost/coccareerfairapp';
 if (process.env.NODE_ENV === 'development' || 
     process.env.NODE_ENV === 'staging' || 
     process.env.NODE_ENV === 'production') {
@@ -19,6 +19,9 @@ mongoose.connection.on('error', function (err) {
 mongoose.connection.on('disconnected', function () {
     console.log('Mongoose disconnected');
 });
+
+
+mongoose.Promise = require('bluebird');
 
 // CAPTURE APP TERMINATION / RESTART EVENTS
 // To be called when process is restarted or terminated
