@@ -1,5 +1,5 @@
-var LineManager = require("./lineManager");
-var NotificationManager = require("./notificationManager");
+const LineManager = require("./lineManager");
+const NotificationManager = require("./notificationManager");
 
 // start the LineManager to start querying database.
 LineManager.startLineManager();

@@ -1,14 +1,14 @@
-var mongoose = require('mongoose');
-var Employer = mongoose.model('Employer');
+const mongoose = require('mongoose');
+const Employer = mongoose.model('Employer');
 
 // get employers/:id
-module.exports.getEmployerById = function (req, res) {
+module.exports.getEmployerById = function(req, res) {
     if (!req.user._id) {
         res.status(401).json({
             "message": "UnauthorizedError: Need to be logged in"
         });
     } else {
-        Employer.findById(req.params.id).exec(function (err, employer) {
+        Employer.findById(req.params.id).exec(function(err, employer) {
             if (err)
                 res.send(err);
             res.status(200).json(employer);
@@ -17,7 +17,7 @@ module.exports.getEmployerById = function (req, res) {
 };
 
 // get employers?name=XXX
-module.exports.getEmployerBySearch = function (req, res) {
+module.exports.getEmployerBySearch = function(req, res) {
     if (!req.user._id) {
         res.status(401).json({
             "message": "UnauthorizedError: Need to be logged in"
@@ -27,7 +27,9 @@ module.exports.getEmployerBySearch = function (req, res) {
             "message": "InputError: Missing name parameter in url"
         });
     } else {
-        Employer.findOne({name: req.query.name}).exec(function (err, employer) {
+        Employer.findOne({
+            name: req.query.name
+        }).exec(function(err, employer) {
             if (err)
                 res.send(err);
             res.status(200).json(employer);
@@ -36,7 +38,7 @@ module.exports.getEmployerBySearch = function (req, res) {
 };
 
 // post employers
-module.exports.createEmployer = function (req, res) {
+module.exports.createEmployer = function(req, res) {
     if (!req.user._id) {
         res.status(401).json({
             "message": "UnauthorizedError: Need to be logged in"
@@ -48,8 +50,8 @@ module.exports.createEmployer = function (req, res) {
     } else {
         var employer = Employer();
         employer.name = req.body.name
-        employer.save(function(err){
-            if(err)
+        employer.save(function(err) {
+            if (err)
                 res.send(err);
             res.status(200).json(employer);
         });
@@ -57,13 +59,17 @@ module.exports.createEmployer = function (req, res) {
 };
 
 // put employers/:id
-module.exports.updateEmployer = function (req, res) {
+module.exports.updateEmployer = function(req, res) {
     if (!req.user._id) {
         res.status(401).json({
             "message": "UnauthorizedError: Need to be logged in"
         });
     } else {
-        Employer.findByIdAndUpdate({_id: req.params.id}, req.body, {new: true}).exec(function (err, employer) {
+        Employer.findByIdAndUpdate({
+            _id: req.params.id
+        }, req.body, {
+            new: true
+        }).exec(function(err, employer) {
             if (err)
                 res.send(err);
             res.status(200).json(employer);
@@ -72,13 +78,15 @@ module.exports.updateEmployer = function (req, res) {
 };
 
 // delete employers/:id
-module.exports.deleteEmployer = function (req, res) {
+module.exports.deleteEmployer = function(req, res) {
     if (!req.user._id) {
         res.status(401).json({
             "message": "UnauthorizedError: Need to be logged in"
         });
     } else {
-        Employer.remove({_id: req.params.id}).exec(function (err, employer) {
+        Employer.remove({
+            _id: req.params.id
+        }).exec(function(err, employer) {
             if (err)
                 res.send(err);
             res.status(200).json({

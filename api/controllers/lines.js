@@ -1,16 +1,18 @@
-var mongoose = require('mongoose');
-var User = mongoose.model('User');
-var Line = mongoose.model('Line');
+const mongoose = require('mongoose');
+const User = mongoose.model('User');
+const Line = mongoose.model('Line');
 
 // get /lines
-module.exports.getLineByAuthUser = function (req, res) {
+module.exports.getLineByAuthUser = function(req, res) {
 
     if (!req.user._id) {
         res.status(401).json({
             "message": "UnauthorizedError: Need to be logged in"
         });
     } else {
-        Line.findOne({user_id: req.user._id}).exec(function (err, line) {
+        Line.findOne({
+            user_id: req.user._id
+        }).exec(function(err, line) {
             if (err)
                 return res.send(err);
             res.status(200).json(line)
@@ -20,14 +22,14 @@ module.exports.getLineByAuthUser = function (req, res) {
 };
 
 // get /lines/:id
-module.exports.getLineById = function (req, res) {
+module.exports.getLineById = function(req, res) {
 
     if (!req.user._id) {
         res.status(401).json({
             "message": "UnauthorizedError: Need to be logged in"
         });
     } else {
-        Line.findById(req.params._id).exec(function (err, line) {
+        Line.findById(req.params._id).exec(function(err, line) {
             if (err)
                 return res.send(err);
             res.status(200).json(line)
@@ -37,18 +39,20 @@ module.exports.getLineById = function (req, res) {
 };
 
 // post /lines
-module.exports.createLine = function (req, res) {
+module.exports.createLine = function(req, res) {
 
     if (!req.user._id) {
         res.status(401).json({
             "message": "UnauthorizedError: Need to be logged in"
         });
-    } else if (!req.body.employer_id){
+    } else if (!req.body.employer_id) {
         res.status(400).json({
             "message": "InputError: Need to have employer_id defined"
         });
     } else {
-        Line.findOne({user_id: req.user._id}).exec( function(err, line){
+        Line.findOne({
+            user_id: req.user._id
+        }).exec(function(err, line) {
             //check if line already exists, only one line per student
             if (err)
                 return res.send(err);
@@ -64,8 +68,8 @@ module.exports.createLine = function (req, res) {
             line.user_id = req.user._id
             line.employer_id = req.body.employer_id
             line.logEvent();
-            line.save(function(err){
-                if(err)
+            line.save(function(err) {
+                if (err)
                     return res.send(err)
                 res.status(200).json(line)
             });
@@ -75,7 +79,7 @@ module.exports.createLine = function (req, res) {
 };
 
 // put /lines/:id
-module.exports.updateLine = function (req, res) {
+module.exports.updateLine = function(req, res) {
 
     if (!req.user._id) {
         res.status(401).json({
@@ -83,7 +87,11 @@ module.exports.updateLine = function (req, res) {
         });
     } else {
         req.body.updated_by = new Date();
-        Line.findByIdAndUpdate({_id: req.params.id}, req.body, {new: true}).exec(function (err, line) {
+        Line.findByIdAndUpdate({
+            _id: req.params.id
+        }, req.body, {
+            new: true
+        }).exec(function(err, line) {
             if (err)
                 return res.send(err);
             line.logEvent();
@@ -94,14 +102,16 @@ module.exports.updateLine = function (req, res) {
 };
 
 // delete /lines/:id
-module.exports.deleteLine = function (req, res) {
+module.exports.deleteLine = function(req, res) {
 
     if (!req.user._id) {
         res.status(401).json({
             "message": "UnauthorizedError: Need to be logged in"
         });
     } else {
-        Line.remove({_id: req.params.id}).exec(function (err, line) {
+        Line.remove({
+            _id: req.params.id
+        }).exec(function(err, line) {
             if (err)
                 return res.send(err);
             res.status(200).json({

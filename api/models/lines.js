@@ -1,6 +1,5 @@
-
-var mongoose = require('mongoose');
-var LineEvent = mongoose.model('LineEvent')
+const mongoose = require('mongoose');
+const LineEvent = mongoose.model('LineEvent')
 
 var lineSchema = new mongoose.Schema({
     user_id: {
@@ -55,7 +54,7 @@ lineSchema.methods.updateStatus = function(status) {
     this.save(function(err, line) {
         if (err)
             return console.log("LineUpdateError: " + err);
-        
+
         line.logEvent();
     });
 }

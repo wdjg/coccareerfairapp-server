@@ -3,17 +3,25 @@
   "version": "1.0.0",
   "description": "Coc Career Fair App",
   "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/wdjg/coccareerfairapp-server.git"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node app.js",
-    "dev": "nodemon app.js"
+    "dev": "nodemon app.js",
+    "format": "node ./scripts/format.js"
   },
   "author": "bwang330@gatech.edu",
   "license": "ISC",
   "devDependencies": {
+    "glob": "^7.1.2",
+    "js-beautify": "^1.7.5",
     "nodemon": "^1.14.11"
   },
   "dependencies": {
+    "bluebird": "^3.5.1",
     "body-parser": "^1.18.2",
     "cookie-parser": "^1.4.3",
     "express": "^4.16.2",
@@ -21,8 +29,8 @@
     "jsonwebtoken": "^8.1.0",
     "mongoose": "^4.13.9",
     "morgan": "^1.9.0",
+    "nodemailer": "^4.4.2",
     "passport": "^0.4.0",
-    "passport-local": "^1.0.0",
-    "bluebird": "^3.5.1"
+    "passport-local": "^1.0.0"
   }
 }

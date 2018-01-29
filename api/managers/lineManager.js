@@ -1,10 +1,10 @@
-var mongoose = require('mongoose')
-var Line = mongoose.model('Line');
-var LineEvent = mongoose.model('LineEvent');
-var NotificationManager = require('./notificationManager');
+const mongoose = require('mongoose')
+const Line = mongoose.model('Line');
+const LineEvent = mongoose.model('LineEvent');
+const NotificationManager = require('./notificationManager');
 
 const BATCH_SIZE = 5;
-const TIMEOUT_MSEC = 1000*60*10; // 10 minutes
+const TIMEOUT_MSEC = 1000 * 60 * 10; // 10 minutes
 
 // uses notification manager to notify student of notification status update
 function notifyLine(line) {
@@ -29,7 +29,7 @@ function updateAllPrelineToNotification() {
         if (err)
             return console.log("LineManagerError: " + err);
         // count up lines by employer
-        lines.forEach( function(line) {
+        lines.forEach(function(line) {
             if (employerToCountMap[line.employer_id]) {
                 employerToCountMap[line.employer_id]++;
             } else {
@@ -39,13 +39,17 @@ function updateAllPrelineToNotification() {
     }).then(function() {
 
         // query for all preline n students, sorted by desc order.
-        query = Line.find({status: "preline"}).sort({updated_by: -1});
+        query = Line.find({
+            status: "preline"
+        }).sort({
+            updated_by: -1
+        });
         query.exec(function(err, lines) {
-            if (err) 
+            if (err)
                 return console.log("LineManagerError: " + err);
 
             // keep track of prelines to update to notification
-            lines.forEach( function(line) {
+            lines.forEach(function(line) {
                 // if it exists
                 if (employerToLinesMap[line.employer_id]) {
                     // add to the array, as long as selected PL + N + IL < BATCH_SIZE
@@ -56,16 +60,16 @@ function updateAllPrelineToNotification() {
                     // otherwise create the array, as long as N + IL is not maxed out.
                     if (employerToCountMap[line.employer_id] || 0 < BATCH_SIZE) {
                         employerToLinesMap[line.employer_id] = [line];
-                    } 
+                    }
                 }
             });
-        }).then(function(){
+        }).then(function() {
             // console.log(employerToCountMap)
             // console.log(employerToLinesMap)
             // for each line item, change from preline to notificatio and notify the user.
             for (var key in employerToLinesMap) {
                 var lines = employerToLinesMap[key];
-                lines.forEach( function(line) {
+                lines.forEach(function(line) {
                     line.updateStatus("notification");
                     notifyLine(line);
                 });

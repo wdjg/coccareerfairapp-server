@@ -1,4 +1,5 @@
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
+
 var lineEventSchema = new mongoose.Schema({
     user_id: {
         type: String,

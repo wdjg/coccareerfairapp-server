@@ -1,11 +1,9 @@
 'use strict';
-var mongoose = require('mongoose');
-var crypto = require('crypto');
-var jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
+const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
 
-var Schema = mongoose.Schema;
-
-var UsersSchema = new Schema({
+var UsersSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true
@@ -35,17 +33,17 @@ var UsersSchema = new Schema({
     }
 });
 
-UsersSchema.methods.setPassword = function (password) {
+UsersSchema.methods.setPassword = function(password) {
     this.salt = crypto.randomBytes(16).toString('hex');
     this.hash = crypto.pbkdf2Sync(password, this.salt, 1000, 64, 'sha512').toString('hex');
 };
 
-UsersSchema.methods.validPassword = function (password) {
+UsersSchema.methods.validPassword = function(password) {
     var hash = crypto.pbkdf2Sync(password, this.salt, 1000, 64, 'sha512').toString('hex');
     return this.hash === hash;
 };
 
-UsersSchema.methods.generateJwt = function () {
+UsersSchema.methods.generateJwt = function() {
     var expiry = new Date();
     expiry.setDate(expiry.getDate() + 7);
 

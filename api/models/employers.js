@@ -1,4 +1,5 @@
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
+
 var employerSchema = new mongoose.Schema({
     name: {
         type: String,

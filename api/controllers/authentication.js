@@ -1,24 +1,26 @@
-var passport = require('passport');
-var mongoose = require('mongoose');
-var User = mongoose.model('User');
+const passport = require('passport');
+const mongoose = require('mongoose');
+const User = mongoose.model('User');
 
-var sendJSONresponse = function (res, status, content) {
+var sendJSONresponse = function(res, status, content) {
     res.status(status);
     res.json(content);
 };
 
-module.exports.register = function (req, res) {
+module.exports.register = function(req, res) {
 
-    if(!req.body.name || !req.body.email || !req.body.password) {
-      sendJSONresponse(res, 400, {
-        "message": "All fields required in body: name, email, password"
-      });
-      return;
+    if (!req.body.name || !req.body.email || !req.body.password) {
+        sendJSONresponse(res, 400, {
+            "message": "All fields required in body: name, email, password"
+        });
+        return;
     }
 
-    User.findOne({email: req.body.email}).exec(function(err, user) {
+    User.findOne({
+        email: req.body.email
+    }).exec(function(err, user) {
         // if user is found, already exists
-        if(user) {
+        if (user) {
             sendJSONresponse(res, 400, {
                 "message": "Email already exists"
             })
@@ -31,7 +33,7 @@ module.exports.register = function (req, res) {
 
             user.setPassword(req.body.password);
 
-            user.save(function (err) {
+            user.save(function(err) {
                 var token;
                 token = user.generateJwt();
                 res.status(200);
@@ -43,16 +45,16 @@ module.exports.register = function (req, res) {
     });
 };
 
-module.exports.login = function (req, res) {
+module.exports.login = function(req, res) {
 
-    if(!req.body.email || !req.body.password) {
-      sendJSONresponse(res, 400, {
-        "message": "All fields required"
-      });
-      return;
+    if (!req.body.email || !req.body.password) {
+        sendJSONresponse(res, 400, {
+            "message": "All fields required"
+        });
+        return;
     }
 
-    passport.authenticate('local', function (err, user, info) {
+    passport.authenticate('local', function(err, user, info) {
         var token;
 
         // If Passport throws/catches an error
