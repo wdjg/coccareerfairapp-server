@@ -25,7 +25,7 @@ const options = {
     operator_position: 'before-newline'
 };
 
-glob('**/!(node_modules)/**/*.js', {
+glob('./!(node_modules)/**/*.js', {
     absolute: true
 }, (er, files) => {
     files.forEach(file => {

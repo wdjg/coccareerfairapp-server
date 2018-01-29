@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
-const gracefulShutdown;
 const dbURI = 'mongodb://localhost/coccareerfairapp';
+
+var gracefulShutdown;
 
 if (process.env.NODE_ENV === 'development' ||
     process.env.NODE_ENV === 'staging' ||
