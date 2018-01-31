@@ -2,35 +2,42 @@
   "name": "careerfairapp",
   "version": "1.0.0",
   "description": "Coc Career Fair App",
-  "main": "index.js",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/wdjg/coccareerfairapp-server.git"
-  },
+  "main": "./dist/app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node app.js",
-    "dev": "nodemon app.js",
-    "format": "node ./scripts/format.js"
+    "start": "npm run build | node ./dist/app.js",
+    "dev": "npm run watch | nodemon --watch dist",
+    "build": "babel src -d dist --copy-files",
+    "watch": "babel -w src -d dist --copy-files",
+    "clean": "rm -rf dist",
+    "test": "mocha --compilers js:babel-register --recursive ./src/api/tests/"
   },
   "author": "bwang330@gatech.edu",
   "license": "ISC",
   "devDependencies": {
     "glob": "^7.1.2",
     "js-beautify": "^1.7.5",
+    "nodemailer": "^4.4.2",
     "nodemon": "^1.14.11"
   },
   "dependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
     "bluebird": "^3.5.1",
     "body-parser": "^1.18.2",
+    "cacheman": "^2.2.1",
     "cookie-parser": "^1.4.3",
     "express": "^4.16.2",
     "express-jwt": "^5.3.0",
     "jsonwebtoken": "^8.1.0",
+    "logger": "0.0.1",
     "mongoose": "^4.13.9",
     "morgan": "^1.9.0",
-    "nodemailer": "^4.4.2",
+    "node-cron": "^1.2.1",
     "passport": "^0.4.0",
     "passport-local": "^1.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/wdjg/coccareerfairapp-server.git"
   }
 }
