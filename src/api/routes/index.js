@@ -34,4 +34,6 @@ router.post('/employers', auth, employerController.createEmployer);
 router.put('/employers/:id', auth, employerController.updateEmployer);
 router.delete('/employers/:id', auth, employerController.deleteEmployer);
 
+router.get('/employers/:id/users', auth, employerController.getLineUsersById); // get inline users for company
+
 module.exports = router;

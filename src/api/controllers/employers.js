@@ -1,5 +1,6 @@
 import mongoose from 'mongoose'
 const Employer = mongoose.model('Employer');
+const Line = mongoose.model('Line');
 
 // get employers/:id
 function getEmployerById(req, res) {
@@ -10,7 +11,7 @@ function getEmployerById(req, res) {
     } else {
         Employer.findById(req.params.id).exec(function (err, employer) {
             if (err)
-                res.send(err);
+                return res.send(err);
             res.status(200).json(employer);
         });
     }
@@ -29,7 +30,7 @@ function getEmployerBySearch(req, res) {
     } else {
         Employer.findOne({name: req.query.name}).exec(function (err, employer) {
             if (err)
-                res.send(err);
+                return res.send(err);
             res.status(200).json(employer);
         });
     }
@@ -50,7 +51,7 @@ function createEmployer(req, res) {
         employer.name = req.body.name
         employer.save(function(err){
             if(err)
-                res.send(err);
+                return res.send(err);
             res.status(200).json(employer);
         });
     }
@@ -65,7 +66,7 @@ function updateEmployer(req, res) {
     } else {
         Employer.findByIdAndUpdate({_id: req.params.id}, req.body, {new: true}).exec(function (err, employer) {
             if (err)
-                res.send(err);
+                return res.send(err);
             res.status(200).json(employer);
         })
     }
@@ -88,4 +89,30 @@ function deleteEmployer(req, res) {
     }
 };
 
-export default { getEmployerById, getEmployerBySearch, createEmployer, updateEmployer, deleteEmployer }
+// get /employers/:id/users
+function getLineUsersById(req, res) {
+
+    if (!req.user._id) {
+        res.status(401).json({
+            "message": "UnauthorizedError: Need to be logged in"
+        });
+    } else {
+        var users = [];
+        var query = Line.find({employer_id: req.params.id}).where({status: "inline"}).sort({updated_by: -1})
+        query.exec(function(err, lines) {
+            if (err)
+                return res.send(err);
+            lines.forEach(function(line) {
+                Line.findOne({_id: line.user_id}).exec( function(err, user){
+                    users.push(user);
+                });
+            });
+        }).then(function() {
+            res.status(200).json({
+                "users": users
+            })
+        })
+    }
+}
+
+export default { getEmployerById, getEmployerBySearch, createEmployer, updateEmployer, deleteEmployer, getLineUsersById}
