@@ -4,8 +4,8 @@
   "description": "Coc Career Fair App",
   "main": "./dist/app.js",
   "scripts": {
-    "start": "npm run build | node ./dist/app.js",
-    "dev": "npm run watch | nodemon --watch dist",
+    "start": "npm run build; node ./dist/app.js",
+    "dev": "npm run watch; nodemon --watch dist",
     "build": "babel src -d dist --copy-files",
     "watch": "babel -w src -d dist --copy-files",
     "clean": "rm -rf dist",
