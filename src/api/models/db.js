@@ -53,6 +53,6 @@ process.on('SIGTERM', function () {
 
 // BRING IN YOUR SCHEMAS & MODELS
 require('./users');
+require('./employers');
 require('./lineEvents');
 require('./lines');
-require('./employers');
