@@ -1,13 +1,18 @@
 import mongoose from 'mongoose'
+import MongooseValidator from 'mongoose-validatorjs'
+import idvalidator from 'mongoose-id-validator'
+const Schema = mongoose.Schema;
 const LineEvent = mongoose.model('LineEvent')
 
-var lineSchema = new mongoose.Schema({
+var lineSchema = new Schema({
     user_id: {
-        type: String,
+        type: Schema.Types.ObjectId,
+        ref: 'User',
         required: true
     },
     employer_id: {
-        type: String,
+        type: Schema.Types.ObjectId,
+        ref: 'Employer',
         required: true
     },
     created_by: {
@@ -30,6 +35,8 @@ var lineSchema = new mongoose.Schema({
         default: 'preline'
     }
 });
+
+lineSchema.plugin(idvalidator);
 
 // create a LineEvent entry to keep track of history.
 // should be called after every update event.
