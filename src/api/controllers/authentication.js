@@ -1,5 +1,6 @@
 import passport from 'passport'
 import mongoose from 'mongoose'
+import response from './response.js'
 const User = mongoose.model('User');
 
 function sendJSONresponse(res, status, content) {
@@ -8,10 +9,9 @@ function sendJSONresponse(res, status, content) {
 }
 
 function register(req, res) {
-
     if(!req.body.name || !req.body.email || !req.body.password) {
       sendJSONresponse(res, 400, {
-        "message": "All fields required in body: name, email, password"
+        "message": response.authRegisterMissingFields 
       });
       return;
     }
@@ -20,7 +20,7 @@ function register(req, res) {
         // if user is found, already exists
         if(user) {
             sendJSONresponse(res, 400, {
-                "message": "Email already exists"
+                "message": response.userAlreadyExists
             })
         } else {
             // user not found, make new one.
@@ -47,7 +47,7 @@ function login(req, res) {
 
     if(!req.body.email || !req.body.password) {
       sendJSONresponse(res, 400, {
-        "message": "All fields required"
+        "message": response.authLoginMissingFields
       });
       return;
     }

@@ -86,8 +86,12 @@ app.use(function (err, req, res, next) {
 });
 
 
-app.listen(port);
+let server = app.listen(port, function() {
+    console.log('API Server started on: ' + port);
+})
 
-console.log('career fair API server started on: ' + port);
+server.stop = function() {
+    server.close();
+}
 
-export default app;
+export default server;
