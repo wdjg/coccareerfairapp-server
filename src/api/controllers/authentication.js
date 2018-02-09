@@ -31,13 +31,23 @@ function register(req, res) {
 
             user.setPassword(req.body.password);
 
+            user.user_type = req.body.user_type;
+            user.employer_id = req.body.employer_id;
+
             user.save(function (err) {
-                var token;
-                token = user.generateJwt();
-                res.status(200);
-                res.json({
-                    "token": token
-                });
+                if (!err) {
+                    var token;
+                    token = user.generateJwt();
+                    res.status(200);
+                    res.json({
+                        "token": token
+                    });
+                } else {
+                    sendJSONresponse(res, 400, {
+                        "message": err
+                    })
+                }
+                
             });
         }
     });
