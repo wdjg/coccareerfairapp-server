@@ -1,4 +1,5 @@
 import express from 'express'
+import cors from 'cors'
 import path from 'path'
 // var favicon = require('serve-favicon');
 // const logger = require('logger')
@@ -44,7 +45,14 @@ app.use('/api', routesApi);
 // app.use(function (req, res) {
 //     res.sendFile(path.join(__dirname, 'app_client', 'index.html'));
 // });
-
+var options = {
+    origin: "*",
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type','Authorization'],
+    preflightContinue: false,
+    optionsSuccessStatus: 204
+}
+app.use(cors(options));
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -55,7 +63,7 @@ app.use(function (req, res, next) {
 
 // error handlers
 
-// [SH] Catch unauthorised errors
+// [SH] Catch unauthorized errors
 app.use(function (err, req, res, next) {
     if (err.name === 'UnauthorizedError') {
         res.status(401);
