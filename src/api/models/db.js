@@ -1,11 +1,15 @@
 import mongoose from 'mongoose'
 
 var gracefulShutdown;
-var dbURI = 'mongodb://localhost/coccareerfairapp';
+var dbURI = 'mongodb://localhost/coccareerfairapp'; // localhost default
+var testURI = 'mongodb://localhost/coccareerfairapp-test';
 if (process.env.NODE_ENV === 'development' || 
     process.env.NODE_ENV === 'staging' || 
     process.env.NODE_ENV === 'production') {
     dbURI = process.env.MONGODB_URI;
+}
+if (process.env.NODE_ENV === 'test') {
+    dbURI = testURI;
 }
 
 mongoose.connect(dbURI);
