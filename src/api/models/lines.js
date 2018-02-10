@@ -28,10 +28,8 @@ var lineSchema = new Schema({
         default: null,
     },
     status: {
-        type: [{
-            type: String,
-            enum: ['preline', 'notification', 'inline', 'finishline', 'finishrecruiter', 'timeoutchurn', 'voluntarychurn']
-        }],
+        type: String,
+        enum: ['preline', 'notification', 'inline', 'startrecruiter', 'finishrecruiter', 'timeoutchurn', 'voluntarychurn'],
         default: 'preline'
     }
 });
