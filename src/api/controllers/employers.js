@@ -1,4 +1,6 @@
 import mongoose from 'mongoose'
+import randomstring from 'randomstring'
+const User = mongoose.model('User');
 const Employer = mongoose.model('Employer');
 const Line = mongoose.model('Line');
 
@@ -115,4 +117,69 @@ function getLineUsersById(req, res) {
     }
 }
 
-export default { getEmployerById, getEmployerBySearch, createEmployer, updateEmployer, deleteEmployer, getLineUsersById}
+// get /employers/:id/qr
+function getQRCodeById(req, res) {
+    console.log('test');
+    if (!req.user._id) {
+        res.status(401).json({
+            "message": "UnauthorizedError: Need to be logged in"
+        });
+    } else if (req.user.user_type == 'student') {
+        req.status(401).json({
+            "message": "UnauthorizedError: Not available to students"
+        })
+    } else {
+        Employer.findById(req.params.id).exec( function (err, employer){
+            if (err) {
+                res.send(err);
+            } else if (!employer) {
+                res.status(404).json({
+                    "message": "NotFoundError: No employer with this employer id"
+                });
+            } else {
+                if (employer.qr_code_value) {
+                    res.status(200).json(employer);
+                } else { //qr code value doesn't exist yet; generate it & save to employer
+                    employer.qr_code_value = randomstring.generate();
+                    employer.save( function (err){
+                        if (err)
+                            return res.send(err);
+                        res.status(200).json(employer);
+                    });
+                }
+            }
+        })
+    }
+};
+
+// post /employers/qr
+function getEmployerFromQRValue(req, res) {
+    if (!req.user._id) {
+        res.status(401).json({
+            "message": "UnauthorizedError: Need to be logged in"
+        });
+    } else if (!req.body.value) {
+        res.status(400).json({
+            "message": "InputError: Need value field!"
+        });
+    } else {
+        const qr_value = req.body.value;
+        Employer.findOne({ qr_code_value: qr_value }).exec( function (err, employer){
+            if (err) {
+                res.send(err);
+            } else if (!employer) {
+                res.status(404).json({
+                    "message": "NotFoundError: No employer with this qr code value"
+                });
+            } else {
+                //TODO: ask brian if sending whole employer back or just emp_id is better practice
+                res.status(200).json(employer);
+                /*res.status(200).json({
+                    "employer_id": employer._id
+                })*/
+            }
+        })
+    }
+};
+
+export default { getEmployerById, getEmployerBySearch, createEmployer, updateEmployer, deleteEmployer, getLineUsersById, getQRCodeById, getEmployerFromQRValue}

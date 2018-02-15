@@ -36,4 +36,7 @@ router.delete('/employers/:id', auth, employerController.deleteEmployer);
 
 router.get('/employers/:id/users', auth, employerController.getLineUsersById); // get inline users for company
 
+router.get('/employers/:id/qr', auth, employerController.getQRCodeById) //get qr code value for company
+router.post('/employers/qr', auth, employerController.getEmployerFromQRValue) //given qr value, returns emp id
+
 module.exports = router;
