@@ -27,7 +27,7 @@ function getLineById(req, res) {
             "message": "UnauthorizedError: Need to be logged in"
         });
     } else {
-        Line.findById(req.params._id).exec(function (err, line) {
+        Line.findById(req.params.id).exec(function (err, line) {
             if (err)
                 return res.send(err);
             res.status(200).json(line)

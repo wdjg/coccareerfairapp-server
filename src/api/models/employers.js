@@ -6,6 +6,12 @@ var employerSchema = new mongoose.Schema({
         unique: true,
         required: true,
     },
+    qr_code_value: {
+    	type: String,
+    	unique: true,
+    	default: null,
+    	index: true
+    },
     created_by: {
         type: Date,
         default: Date.now,

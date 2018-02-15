@@ -14,10 +14,8 @@ var lineEventSchema = new mongoose.Schema({
         default: Date.now,
     },
     status: {
-        type: [{
-            type: String,
-            enum: ['preline', 'notification', 'inline', 'finishline', 'finishrecruiter', 'timeoutchurn', 'voluntarychurn']
-        }],
+        type: String,
+        enum: ['preline', 'notification', 'inline', 'startrecruiter', 'finishrecruiter', 'timeoutchurn', 'voluntarychurn'],
         required: true
     }
 });
