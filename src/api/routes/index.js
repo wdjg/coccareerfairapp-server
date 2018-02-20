@@ -26,6 +26,7 @@ router.get('/lines/:id', auth, lineController.getLineById);
 router.post('/lines', auth, lineController.createLine);
 router.put('/lines/:id', auth, lineController.updateLine);
 router.delete('/lines/:id', auth, lineController.deleteLine);
+router.patch('/lines/:id', auth, lineController.updateLineStatus); //to update line status field
 
 // employers
 router.get('/employers', auth, employerController.getEmployerBySearch);
