@@ -18,6 +18,11 @@ Set up your secret environment variable
 ```
 echo 'export SECRET="your_secret_here"' >> .bash_profile
 ```
+or create a .env with these properties
+```
+SECRET=ursecrethere
+NODE_ENV=local,development,production
+```
 Then install packages
 ```
 npm install
