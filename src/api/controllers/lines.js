@@ -53,7 +53,7 @@ function createLine(req, res) {
 
             if (line) {
                 return res.status(400).json({
-                    "message": "UniqueError: Line for this user already exists"
+                    "message": response.postLinesAlreadyExists
                 });
             }
             //otherwise this is fine
@@ -82,7 +82,7 @@ function updateLine(req, res) {
         });
     } else if (req.user.user_type == 'student') {
         req.status(401).json({
-            "message": "UnauthorizedError: Not available to students"
+            "message": response.authNoStudentsAllowed
         })
     } else {
         req.body.updated_by = new Date();
@@ -114,7 +114,7 @@ function deleteLine(req, res) {
             if (err)
                 return res.send(err);
             res.status(200).json({
-                "message": "Successfully deleted line"
+                "message": response.success
             })
         })
     }
@@ -125,7 +125,7 @@ function deleteLine(req, res) {
 function getStatsByEmployerId(req, res) {
     if (!req.user._id) {
         res.status(401).json({
-            "message": "UnauthorizedError: Need to be logged in"
+            "message": response.unauthorized
         });
     } else {
         Line.count({ employer_id: req.query.employer_id }, function (err, count) {
@@ -139,12 +139,43 @@ function getStatsByEmployerId(req, res) {
     }
 }
 
+// get /lines/users?employer_id=xxxxx
+function getUsersByEmployerId(req, res) {
+
+    if (!req.user._id) {
+        res.status(401).json({
+            "message": response.unauthorized
+        });
+    } else if (!req.query.employer_id) {
+        res.status(401).json({
+            "message": response.getLinesUsersMissingEmployeId
+        });
+    } else {
+        var user_ids = [];
+        var query = Line.find({ employer_id: req.query.employer_id }).where({ status: "inline" }).sort({ updated_by: -1 })
+        query.exec(function (err, lines) {
+            if (err)
+                return res.send(err);
+            user_ids = lines.map(line => line.user_id);
+        }).then(function () {
+            User.find({ _id: user_ids }).exec(function (err, users) {
+                if (err)
+                    return res.send(err);
+                res.status(200).json({
+                    "users": users
+                })
+            });
+        })
+    }
+}
+
+
 // patch /lines/:id/status
 // currently, only the status field is mutable this way
 function updateLineStatus(req, res) {
     if (!req.user._id) {
         res.status(401).json({
-            "message": "UnauthorizedError: Need to be logged in"
+            "message": response.unauthorized
         });
     } else { 
         Line.findById({_id: req.params.id}).exec(function (err, line) {
@@ -171,5 +202,5 @@ function updateLineStatus(req, res) {
     }
 }
 
-export default { getLineByAuthUser, getLineById, createLine, updateLine, deleteLine, getStatsByEmployerId, updateLineStatus }
+export default { getLineByAuthUser, getLineById, createLine, updateLine, deleteLine, getStatsByEmployerId, getUsersByEmployerId, updateLineStatus }
 

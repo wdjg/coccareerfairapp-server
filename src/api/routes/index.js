@@ -23,6 +23,7 @@ router.get('/users/:id', auth, userController.getUserById);
 // lines
 router.get('/lines', auth, lineController.getLineByAuthUser);
 router.get('/lines/stats', auth, lineController.getStatsByEmployerId);
+router.get('/lines/users', auth, lineController.getUsersByEmployerId); // get inline users for company
 router.get('/lines/:id', auth, lineController.getLineById);
 router.post('/lines', auth, lineController.createLine);
 router.put('/lines/:id', auth, lineController.updateLine);
@@ -36,7 +37,6 @@ router.post('/employers', auth, employerController.createEmployer);
 router.put('/employers/:id', auth, employerController.updateEmployer);
 router.delete('/employers/:id', auth, employerController.deleteEmployer);
 
-router.get('/employers/:id/users', auth, employerController.getLineUsersById); // get inline users for company
 
 router.get('/employers/:id/qr', auth, employerController.getQRCodeById) //get qr code value for company
 router.post('/employers/qr', auth, employerController.getEmployerFromQRValue) //given qr value, returns emp id
