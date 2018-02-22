@@ -39,7 +39,7 @@ app.use(passport.initialize());
 
 var options = {
     origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     allowedHeaders: ['Origin', 'Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
     preflightContinue: false,
     optionsSuccessStatus: 204

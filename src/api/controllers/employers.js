@@ -4,11 +4,13 @@ const User = mongoose.model('User');
 const Employer = mongoose.model('Employer');
 const Line = mongoose.model('Line');
 
+import response from './response.js'
+
 // get employers/:id
 function getEmployerById(req, res) {
     if (!req.user._id) {
         res.status(401).json({
-            "message": "UnauthorizedError: Need to be logged in"
+            "message": response.unauthorized 
         });
     } else {
         Employer.findById(req.params.id).exec(function (err, employer) {
@@ -23,7 +25,7 @@ function getEmployerById(req, res) {
 function getEmployerBySearch(req, res) {
     if (!req.user._id) {
         res.status(401).json({
-            "message": "UnauthorizedError: Need to be logged in"
+            "message": response.unauthorized 
         });
     } else if (!req.query.name) {
         res.status(401).json({
@@ -42,7 +44,7 @@ function getEmployerBySearch(req, res) {
 function createEmployer(req, res) {
     if (!req.user._id) {
         res.status(401).json({
-            "message": "UnauthorizedError: Need to be logged in"
+            "message": response.unauthorized 
         });
     } else if (!req.body.name) {
         res.status(400).json({
@@ -63,7 +65,7 @@ function createEmployer(req, res) {
 function updateEmployer(req, res) {
     if (!req.user._id) {
         res.status(401).json({
-            "message": "UnauthorizedError: Need to be logged in"
+            "message": response.unauthorized 
         });
     } else {
         Employer.findByIdAndUpdate({_id: req.params.id}, req.body, {new: true}).exec(function (err, employer) {
@@ -78,7 +80,7 @@ function updateEmployer(req, res) {
 function deleteEmployer(req, res) {
     if (!req.user._id) {
         res.status(401).json({
-            "message": "UnauthorizedError: Need to be logged in"
+            "message": response.unauthorized 
         });
     } else {
         Employer.remove({_id: req.params.id}).exec(function (err, employer) {
@@ -99,20 +101,22 @@ function getLineUsersById(req, res) {
             "message": "UnauthorizedError: Need to be logged in"
         });
     } else {
-        var users = [];
-        var query = Line.find({employer_id: req.params.id}).where({status: "inline"}).sort({updated_by: -1})
-        query.exec(function(err, lines) {
+        var user_ids = [];
+        var query = Line.find({ employer_id: req.params.id }).where({ status: "inline" }).sort({ updated_by: -1 })
+        query.exec(function (err, lines) {
             if (err)
                 return res.send(err);
-            lines.forEach(function(line) {
-                Line.findOne({_id: line.user_id}).exec( function(err, user){
-                    users.push(user);
-                });
+            user_ids = lines.map(line => line.user_id);
+            console.log(user_ids);
+            console.log(lines);
+        }).then(function () {
+            User.find({ _id: user_ids }).exec(function (err, users) {
+                if (err)
+                    return res.send(err);
+                res.status(200).json({
+                    "users": users
+                })
             });
-        }).then(function() {
-            res.status(200).json({
-                "users": users
-            })
         })
     }
 }
@@ -122,7 +126,7 @@ function getQRCodeById(req, res) {
     console.log('test');
     if (!req.user._id) {
         res.status(401).json({
-            "message": "UnauthorizedError: Need to be logged in"
+            "message": response.unauthorized
         });
     } else if (req.user.user_type == 'student') {
         req.status(401).json({
@@ -156,7 +160,7 @@ function getQRCodeById(req, res) {
 function getEmployerFromQRValue(req, res) {
     if (!req.user._id) {
         res.status(401).json({
-            "message": "UnauthorizedError: Need to be logged in"
+            "message": response.unauthorized 
         });
     } else if (!req.body.value) {
         res.status(400).json({

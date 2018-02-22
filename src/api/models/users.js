@@ -16,9 +16,14 @@ var UsersSchema = new Schema({
         unique: true,
         required: true
     },
-    hash: String,
-    salt: String,
-
+    hash: {
+        type: String,
+        select: false
+    },
+    salt: {
+        type: String,
+        select: false
+    },
     created_by: {
         type: Date,
         default: Date.now
