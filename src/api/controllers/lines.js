@@ -59,8 +59,9 @@ function createLine(req, res) {
             //otherwise this is fine
 
             var line = Line();
-            line.user_id = req.user._id
-            line.employer_id = req.body.employer_id
+            line.user_id = req.user._id;
+            line.employer_id = req.body.employer_id;
+            line.status = 'preline';
             line.logEvent();
             line.save(function(err){
                 if(err)
@@ -79,6 +80,10 @@ function updateLine(req, res) {
         res.status(401).json({
             "message": response.unauthorized
         });
+    } else if (req.user.user_type == 'student') {
+        req.status(401).json({
+            "message": "UnauthorizedError: Not available to students"
+        })
     } else {
         req.body.updated_by = new Date();
         Line.findByIdAndUpdate({_id: req.params.id}, req.body, {new: true}).exec(function (err, line) {
@@ -116,4 +121,36 @@ function deleteLine(req, res) {
 
 }
 
-export default { getLineByAuthUser, getLineById, createLine, updateLine, deleteLine }
+// patch /lines/:id/status
+// currently, only the status field is mutable this way
+function updateLineStatus(req, res) {
+    if (!req.user._id) {
+        res.status(401).json({
+            "message": "UnauthorizedError: Need to be logged in"
+        });
+    } else { 
+        Line.findById({_id: req.params.id}).exec(function (err, line) {
+            if (err) 
+                return res.send(err);
+            if (!line) {
+                res.status(400).json({
+                    "message": "No line found for parameter :id + " + req.params.id
+                });
+            } else {
+                const msg = line.updateStatus(req.body.status);
+
+                if (msg !== 'success') {
+                    res.status(400).json({
+                        "message": msg
+                    });
+                } else {
+                    res.status(200).json({
+                        "message": "Successfully updated line with status " + req.body.status
+                    });
+                }
+            }
+        });
+    }
+}
+
+export default { getLineByAuthUser, getLineById, createLine, updateLine, deleteLine, updateLineStatus }
