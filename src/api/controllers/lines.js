@@ -2,12 +2,14 @@ import mongoose from 'mongoose'
 const User = mongoose.model('User');
 const Line = mongoose.model('Line');
 
+import response from './response.js';
+
 // get /lines
 function getLineByAuthUser(req, res) {
 
     if (!req.user._id) {
         res.status(401).json({
-            "message": "UnauthorizedError: Need to be logged in"
+            "message": response.unauthorized
         });
     } else {
         Line.findOne({user_id: req.user._id}).exec(function (err, line) {
@@ -24,7 +26,7 @@ function getLineById(req, res) {
 
     if (!req.user._id) {
         res.status(401).json({
-            "message": "UnauthorizedError: Need to be logged in"
+            "message": response.unauthorized
         });
     } else {
         Line.findById(req.params.id).exec(function (err, line) {
@@ -41,7 +43,7 @@ function createLine(req, res) {
 
     if (!req.user._id) {
         res.status(401).json({
-            "message": "UnauthorizedError: Need to be logged in"
+            "message": response.unauthorized
         });
     } else {
         Line.findOne({user_id: req.user._id}).exec( function(err, line){
@@ -75,7 +77,7 @@ function updateLine(req, res) {
 
     if (!req.user._id) {
         res.status(401).json({
-            "message": "UnauthorizedError: Need to be logged in"
+            "message": response.unauthorized
         });
     } else {
         req.body.updated_by = new Date();
@@ -100,7 +102,7 @@ function deleteLine(req, res) {
 
     if (!req.user._id) {
         res.status(401).json({
-            "message": "UnauthorizedError: Need to be logged in"
+            "message": response.unauthorized
         });
     } else {
         Line.remove({_id: req.params.id}).exec(function (err, line) {
