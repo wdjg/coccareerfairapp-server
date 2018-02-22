@@ -119,7 +119,7 @@ function deleteLine(req, res) {
 
 }
 
-// patch /lines/:id
+// patch /lines/:id/status
 // currently, only the status field is mutable this way
 function updateLineStatus(req, res) {
     if (!req.user._id) {

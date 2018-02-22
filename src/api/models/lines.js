@@ -79,7 +79,7 @@ lineSchema.methods.updateStatus = function(status) {
             }
             break;
         case 'timeoutchurn':
-            if (this.status !== 'notification') {
+            if (this.status !== 'notification' && this.status !== 'inline' && this.status !== 'startrecruiter') {
                 msg = "LineUpdateError: Cannot time out when in status " + status;
             }
             break;
@@ -112,12 +112,12 @@ lineSchema.methods.updateStatus = function(status) {
         case 'finishrecruiter':
         case 'timeoutchurn':
         case 'voluntarychurn':
-        this.remove(function(err) {
-            if (err) {
-                console.log("LineUpdateError: Could not remove line: " + err);
-                return 'LineUpdateError: Could not remove line: ' + err;
-            }
-        });
+            this.remove(function(err) {
+                if (err) {
+                    console.log("LineUpdateError: Could not remove line: " + err);
+                    return 'LineUpdateError: Could not remove line: ' + err;
+                }
+            });
             break;
         default:
             break;
