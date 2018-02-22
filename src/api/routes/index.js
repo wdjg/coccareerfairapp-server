@@ -22,6 +22,7 @@ router.get('/users/:id', auth, userController.getUserById);
 
 // lines
 router.get('/lines', auth, lineController.getLineByAuthUser);
+router.get('/lines/stats', auth, lineController.getStatsByEmployerId);
 router.get('/lines/:id', auth, lineController.getLineById);
 router.post('/lines', auth, lineController.createLine);
 router.put('/lines/:id', auth, lineController.updateLine);

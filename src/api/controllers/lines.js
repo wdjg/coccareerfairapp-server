@@ -114,4 +114,23 @@ function deleteLine(req, res) {
 
 }
 
-export default { getLineByAuthUser, getLineById, createLine, updateLine, deleteLine }
+// get /lines/stats/?employer_id=xxx
+function getStatsByEmployerId(req, res) {
+
+    if (!req.user._id) {
+        res.status(401).json({
+            "message": "UnauthorizedError: Need to be logged in"
+        });
+    } else {
+        Line.count({ employer_id: req.query.employer_id }, function (err, count) {
+            if (err) {
+                return res.send(err);
+            }
+            res.status(200).json({
+                "size": count
+            });
+        });
+    }
+}
+
+export default { getLineByAuthUser, getLineById, createLine, updateLine, deleteLine, getStatsByEmployerId }
