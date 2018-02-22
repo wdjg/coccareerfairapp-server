@@ -21,15 +21,18 @@ function getEmployerById(req, res) {
     }
 };
 
-// get employers?name=XXX
+// get /employers, also:
+// get /employers?name=XXX
 function getEmployerBySearch(req, res) {
     if (!req.user._id) {
         res.status(401).json({
             "message": response.unauthorized 
         });
-    } else if (!req.query.name) {
-        res.status(401).json({
-            "message": "InputError: Missing name parameter in url"
+    } else if (!req.query.name) { //just return list of all employers
+        Employer.find( { } ).exec(function (err, employers) {
+            if (err)
+                return res.send(err);
+            res.status(200).json(employers);
         });
     } else {
         Employer.findOne({name: req.query.name}).exec(function (err, employer) {
