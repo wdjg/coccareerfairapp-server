@@ -15,7 +15,7 @@ function getLineByAuthUser(req, res) {
         Line.findOne({user_id: req.user._id}).exec(function (err, line) {
             if (err)
                 return res.send(err);
-            res.status(200).json(line)
+            res.status(200).json(line);
         });
     }
 
@@ -32,7 +32,7 @@ function getLineById(req, res) {
         Line.findById(req.params.id).exec(function (err, line) {
             if (err)
                 return res.send(err);
-            res.status(200).json(line)
+            res.status(200).json(line);
         });
     }
 
@@ -128,7 +128,9 @@ function getStatsByEmployerId(req, res) {
             "message": response.unauthorized
         });
     } else {
-        Line.count({ employer_id: req.query.employer_id }, function (err, count) {
+        // restrict to only preline, notification, and inline.
+        const statuses = ['preline','notification','inline'];
+        Line.count({ employer_id: req.query.employer_id }).where("status").in(statuses).exec(function (err, count) {
             if (err) {
                 return res.send(err);
             }
