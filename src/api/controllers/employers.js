@@ -51,7 +51,7 @@ function createEmployer(req, res) {
         });
     } else if (!req.body.name) {
         res.status(400).json({
-            "message": "InputError: Missing name parameter"
+            "message": response.postEmployersMissingNameBody
         });
     } else {
         var employer = Employer();
@@ -90,39 +90,11 @@ function deleteEmployer(req, res) {
             if (err)
                 res.send(err);
             res.status(200).json({
-                "message": "Successfully deleted employer"
+                "message": response.success
             })
         })
     }
 };
-
-// get /employers/:id/users
-function getLineUsersById(req, res) {
-
-    if (!req.user._id) {
-        res.status(401).json({
-            "message": "UnauthorizedError: Need to be logged in"
-        });
-    } else {
-        var user_ids = [];
-        var query = Line.find({ employer_id: req.params.id }).where({ status: "inline" }).sort({ updated_by: -1 })
-        query.exec(function (err, lines) {
-            if (err)
-                return res.send(err);
-            user_ids = lines.map(line => line.user_id);
-            console.log(user_ids);
-            console.log(lines);
-        }).then(function () {
-            User.find({ _id: user_ids }).exec(function (err, users) {
-                if (err)
-                    return res.send(err);
-                res.status(200).json({
-                    "users": users
-                })
-            });
-        })
-    }
-}
 
 // get /employers/:id/qr
 function getQRCodeById(req, res) {
@@ -133,7 +105,7 @@ function getQRCodeById(req, res) {
         });
     } else if (req.user.user_type == 'student') {
         req.status(401).json({
-            "message": "UnauthorizedError: Not available to students"
+            "message": response.authNoStudentsAllowed
         })
     } else {
         Employer.findById(req.params.id).exec( function (err, employer){
@@ -167,7 +139,7 @@ function getEmployerFromQRValue(req, res) {
         });
     } else if (!req.body.value) {
         res.status(400).json({
-            "message": "InputError: Need value field!"
+            "message": response.postEmployersQRMissingValueBody
         });
     } else {
         const qr_value = req.body.value;
@@ -189,4 +161,4 @@ function getEmployerFromQRValue(req, res) {
     }
 };
 
-export default { getEmployerById, getEmployerBySearch, createEmployer, updateEmployer, deleteEmployer, getLineUsersById, getQRCodeById, getEmployerFromQRValue}
+export default { getEmployerById, getEmployerBySearch, createEmployer, updateEmployer, deleteEmployer, getQRCodeById, getEmployerFromQRValue}
