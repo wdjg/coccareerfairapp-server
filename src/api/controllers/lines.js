@@ -121,6 +121,24 @@ function deleteLine(req, res) {
 
 }
 
+// get /lines/stats/?employer_id=xxx
+function getStatsByEmployerId(req, res) {
+    if (!req.user._id) {
+        res.status(401).json({
+            "message": "UnauthorizedError: Need to be logged in"
+        });
+    } else {
+        Line.count({ employer_id: req.query.employer_id }, function (err, count) {
+            if (err) {
+                return res.send(err);
+            }
+            res.status(200).json({
+                "size": count
+            });
+        });
+    }
+}
+
 // patch /lines/:id/status
 // currently, only the status field is mutable this way
 function updateLineStatus(req, res) {
@@ -148,9 +166,10 @@ function updateLineStatus(req, res) {
                         "message": "Successfully updated line with status " + req.body.status
                     });
                 }
-            }
+            }      
         });
     }
 }
 
-export default { getLineByAuthUser, getLineById, createLine, updateLine, deleteLine, updateLineStatus }
+export default { getLineByAuthUser, getLineById, createLine, updateLine, deleteLine, getStatsByEmployerId, updateLineStatus }
+
