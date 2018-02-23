@@ -128,17 +128,91 @@ function getStatsByEmployerId(req, res) {
             "message": response.unauthorized
         });
     } else {
-        // restrict to only preline, notification, and inline.
-        const statuses = ['preline','notification','inline'];
-        Line.count({ employer_id: req.query.employer_id }).where("status").in(statuses).exec(function (err, count) {
-            if (err) {
-                return res.send(err);
-            }
+        //use promises to have queries run async. in parallel.
+        var size = getSizeByEmployerId(req.query.employer_id);
+        var currentPlace = getMyPlaceByEmployerId(req.user._id, req.query.employer_id);
+
+        Promise.all([size, currentPlace]).then(function(values) {
+            console.log('size = ' + values[0] + ', myPlace = ' + values[1]);
             res.status(200).json({
-                "size": count
+                "size": values[0],
+                "myPlace": values[1]
             });
-        });
+        })
     }
+}
+
+//helper: given employer_id, returns the # of users in line for that employer, as a promise.
+function getSizeByEmployerId(employer_id) {
+    //restrict line size count to people that are still waiting.
+    statuses = ['preline', 'notification', 'inline'];
+    return Line.count({ employer_id: employer_id }).where('status').in(statuses).exec(function (err, count) {
+        if (err) {
+            console.log(err);
+            return null;
+        }
+        return count;
+    });
+}
+
+//helper: given user_id and employer_id, returns what place this user is in line, as a promise.
+function getMyPlaceByEmployerId(user_id, employer_id) {
+    //to get current place:
+    //check current status
+    //then count # of lines with further advanced status
+    //then also add # of lines with same status, but with older update timestamps.
+    var myCurrentLine = Line.findOne({ user_id: user_id, 
+                                       employer_id: employer_id }).exec();
+    return myCurrentLine.then(function (myLine) {
+        if (!myLine) {
+            return null;
+        }
+
+        var status = myLine.status;
+
+        switch (status) {
+            case 'startrecruiter':
+                return 0; //if you're already talking to the recruiter, you're at the front.
+                break;
+
+            case 'inline':
+                var aheadOfMe = Line.count({ employer_id: employer_id,
+                                    status: 'inline',
+                                    updated_by: {$lt: myLine.updated_by}}).exec();
+                return aheadOfMe.then(function (ahead) {
+                    return ahead + 1;
+                });
+                break;
+
+            case 'notification':
+                //use exec() and Promise.all() to have queries run async. in parallel.
+                var inlineCount = Line.count({ employer_id: employer_id,
+                                               status: 'inline'}).exec(); 
+                var notifCount = Line.count({ employer_id: employer_id,
+                                              status: 'notification',
+                                              updated_by: {$lt: myLine.updated_by}}).exec();
+                return Promise.all([inlineCount, notifCount]).then(function(values) {
+                    return values.reduce(function(a, b) { return a + b; } ) + 1;
+                });
+                break;
+
+            case 'preline':
+                const aheadStatuses = ['inline', 'notification'];
+                var aheadCount = Line.count({ employer_id: employer_id, 
+                                              status: aheadStatuses}).exec();
+                var prelineCount = Line.count({ employer_id: employer_id,
+                                              status: 'preline',
+                                              updated_by: {$lt: myLine.updated_by}}).exec();
+                return Promise.all([aheadCount, prelineCount]).then(function(values) {
+                    return values.reduce(function(a, b) {return a + b; } ) + 1;
+                });
+                break;
+
+            default:
+                return -1; //line exists, but you don't have a status that can really be considered in line.
+                break;
+        }
+    });
 }
 
 // get /lines/users?employer_id=xxxxx
@@ -170,7 +244,6 @@ function getUsersByEmployerId(req, res) {
         })
     }
 }
-
 
 // patch /lines/:id/status
 // currently, only the status field is mutable this way
