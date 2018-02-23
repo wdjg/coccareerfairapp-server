@@ -129,8 +129,8 @@ function getStatsByEmployerId(req, res) {
         });
     } else {
         //use promises to have queries run async. in parallel.
-        var size = getSizeByEmployerId(req.query.employer_id);
-        var currentPlace = getMyPlaceByEmployerId(req.user._id, req.query.employer_id);
+        var size = getSizeByEmployerId(req.query.employer_id)
+        var currentPlace = getMyPlaceByEmployerId(req.user._id, req.query.employer_id)
 
         Promise.all([size, currentPlace]).then(function(values) {
             console.log('size = ' + values[0] + ', myPlace = ' + values[1]);
@@ -138,6 +138,8 @@ function getStatsByEmployerId(req, res) {
                 "size": values[0],
                 "myPlace": values[1]
             });
+        }).catch ( function(err) {
+            res.send(err);
         })
     }
 }
@@ -145,14 +147,9 @@ function getStatsByEmployerId(req, res) {
 //helper: given employer_id, returns the # of users in line for that employer, as a promise.
 function getSizeByEmployerId(employer_id) {
     //restrict line size count to people that are still waiting.
-    statuses = ['preline', 'notification', 'inline'];
-    return Line.count({ employer_id: employer_id }).where('status').in(statuses).exec(function (err, count) {
-        if (err) {
-            console.log(err);
-            return null;
-        }
-        return count;
-    });
+    //so, only preline, notification, and inline are counted.
+    return Line.count({ employer_id: employer_id,
+                        status: {$in: ["preline", "notification", "inline"] } }).exec();
 }
 
 //helper: given user_id and employer_id, returns what place this user is in line, as a promise.
@@ -165,11 +162,10 @@ function getMyPlaceByEmployerId(user_id, employer_id) {
                                        employer_id: employer_id }).exec();
     return myCurrentLine.then(function (myLine) {
         if (!myLine) {
-            return null;
+            return null; //you're not in line for this employer.
         }
 
         var status = myLine.status;
-
         switch (status) {
             case 'startrecruiter':
                 return 0; //if you're already talking to the recruiter, you're at the front.
