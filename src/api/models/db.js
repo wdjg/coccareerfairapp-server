@@ -60,3 +60,4 @@ require('./employers');
 require('./users');
 require('./lineEvents');
 require('./lines');
+require('./qrCodeValues');
