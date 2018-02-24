@@ -31,8 +31,8 @@ router.delete('/lines/:id', auth, lineController.deleteLine);
 router.patch('/lines/:id/status', auth, lineController.updateLineStatus); //to update line status field
 
 // employers
-router.get('/employers', auth, employerController.getEmployerBySearch);
-router.get('/employers/:id', auth, employerController.getEmployerById);
+router.get('/employers', employerController.getEmployerBySearch);
+router.get('/employers/:id', employerController.getEmployerById);
 router.post('/employers', auth, employerController.createEmployer);
 router.put('/employers/:id', auth, employerController.updateEmployer);
 router.delete('/employers/:id', auth, employerController.deleteEmployer);
