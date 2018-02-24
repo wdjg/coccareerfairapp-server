@@ -31,7 +31,8 @@ function register(req, res) {
 
             user.setPassword(req.body.password);
 
-            user.user_type = req.body.user_type;
+            //need to enforce default here since jwt builds off of this.
+            user.user_type = (req.body.user_type === undefined) ? 'student' : req.body.user_type;
             user.employer_id = req.body.employer_id;
 
             user.save(function (err) {

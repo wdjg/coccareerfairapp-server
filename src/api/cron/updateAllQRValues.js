@@ -1,9 +1,17 @@
 import mongoose from 'mongoose'
-import randomstring from 'randomstring'
 const Employer = mongoose.model('Employer');
+const QRCodeValue = mongoose.model('QRCodeValue');
 
-//every 10 minutes: give each employer a new random qr code value
+//10 minutes, measured in milliseconds.
+//If you change this, consider changing how frequently of this job as well.
+const timeout = 1000*60*10;
+//const timeout = 1000*30; //debug of 30 seconds
+
+//Delete expired code values
+//Give each employer a new random qr code value
 function job() {
+	QRCodeValue.deleteExpired();
+
 	var query = Employer.find({});
 	query.exec( function (err, employers) {
 		if (err) {
@@ -11,12 +19,8 @@ function job() {
 		}
 
 		employers.forEach( function (employer) {
-			employer.qr_code_value = randomstring.generate();
-			console.log('Created QR code value for employer %s, with %s', employer.name, employer.qr_code_value);
-            employer.save( function (err) {
-                if (err)
-                    return console.log("QRUpdaterError: " + err);
-            });
+			QRCodeValue.createValue(employer._id, timeout);
+			console.log('Created QR code value for employer %s', employer.name);
 		});
 	});
 }

@@ -84,6 +84,7 @@ UsersSchema.methods.generateJwt = function () {
         _id: this._id,
         email: this.email,
         name: this.name,
+        user_type: this.user_type,
         exp: parseInt(expiry.getTime() / 1000),
     }, process.env.SECRET);
 };

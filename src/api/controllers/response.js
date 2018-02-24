@@ -21,6 +21,10 @@ let messages =  {
     postEmployersMissingNameBody: "InputError: Missing name parameter in body",
     postEmployersQRMissingValueBody: "InputError: Missing value parameter in body",
 
+    // QR
+    getQRNotFound: "NotFound: no QR found for your input",
+    getQRMissingQuery: "InputError: Missing employer_id or qr_code_value as a query parameter in url",
+
     // misc
     success: "Success"
 

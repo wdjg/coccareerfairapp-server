@@ -11,6 +11,7 @@ import authController from '../controllers/authentication'
 import userController from '../controllers/users'
 import lineController from '../controllers/lines'
 import employerController from '../controllers/employers'
+import qrController from '../controllers/qrCodeValues'
 
 // authentication
 router.post('/register', authController.register);
@@ -37,8 +38,7 @@ router.post('/employers', auth, employerController.createEmployer);
 router.put('/employers/:id', auth, employerController.updateEmployer);
 router.delete('/employers/:id', auth, employerController.deleteEmployer);
 
-
-router.get('/employers/:id/qr', auth, employerController.getQRCodeById) //get qr code value for company
-router.post('/employers/qr', auth, employerController.getEmployerFromQRValue) //given qr value, returns emp id
+// QR
+router.get('/qr', auth, qrController.getQRWithQuery); //get qr code given emp_id or qr_code_value in query
 
 module.exports = router;
