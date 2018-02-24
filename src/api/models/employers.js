@@ -6,10 +6,14 @@ var employerSchema = new mongoose.Schema({
         unique: true,
         required: true,
     },
+    data: {
+        type: Object,
+        default: {}
+    },
     created_by: {
         type: Date,
         default: Date.now,
-    },
+    }
 });
 
 mongoose.model('Employer', employerSchema);

@@ -18,7 +18,9 @@ router.post('/register', authController.register);
 router.post('/login', authController.login);
 
 // users
-router.get('/users', auth, userController.getUserByAuthUser);
+router.get('/users', auth, userController.getUsers);
+router.get('/users/auth', auth, userController.getUserByAuthUser);
+router.patch('/users/auth/data', auth, userController.patchUserDataByAuthUser);
 router.get('/users/:id', auth, userController.getUserById);
 
 // lines
@@ -32,10 +34,12 @@ router.delete('/lines/:id', auth, lineController.deleteLine);
 router.patch('/lines/:id/status', auth, lineController.updateLineStatus); //to update line status field
 
 // employers
-router.get('/employers', auth, employerController.getEmployerBySearch);
-router.get('/employers/:id', auth, employerController.getEmployerById);
+router.get('/employers', employerController.getEmployerBySearch); // UNAUTHENTICATED
+router.get('/employers/auth', auth, employerController.getEmployerByAuthUser);
+router.get('/employers/:id', employerController.getEmployerById); // UNAUTHENTICATED
 router.post('/employers', auth, employerController.createEmployer);
 router.put('/employers/:id', auth, employerController.updateEmployer);
+router.patch('/employers/auth/data', auth, employerController.patchEmployersDataByAuthUser); // recruiter only
 router.delete('/employers/:id', auth, employerController.deleteEmployer);
 
 // QR
