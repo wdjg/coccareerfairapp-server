@@ -5,33 +5,50 @@ const Line = mongoose.model('Line');
 
 import response from './response.js'
 
-// get employers/:id
-function getEmployerById(req, res) {
+function getEmployerByAuthUser(req, res) {
     if (!req.user._id) {
         res.status(401).json({
             "message": response.unauthorized 
         });
+    } else if (req.user.user_type !== 'recruiter') {
+        res.status(401).json({
+            "message": response.onlyRecruiters
+        });
     } else {
-        Employer.findById(req.params.id).exec(function (err, employer) {
+        User.findById(req.user._id).exec( function(err, user){
             if (err)
                 return res.send(err);
-            res.status(200).json(employer);
+            Employer.findById(user.employer_id).exec( function(err, employer){
+                if (err)
+                    return res.send(err);
+                res.status(200).json(employer);
+            });
         });
+
     }
+}
+
+// get employers/:id
+// UNAUTHENTICATED ROUTE
+function getEmployerById(req, res) {
+    Employer.findById(req.params.id).exec(function (err, employer) {
+        if (err)
+            return res.send(err);
+        res.status(200).json(employer);
+    });
 };
 
 // get /employers, also:
 // get /employers?name=XXX
+// UNAUTHENTICATED ROUTE
 function getEmployerBySearch(req, res) {
-    if (!req.user._id) {
-        res.status(401).json({
-            "message": response.unauthorized 
-        });
-    } else if (!req.query.name) { //just return list of all employers
+    if (!req.query.name) { //just return list of all employers
         Employer.find( { } ).exec(function (err, employers) {
             if (err)
                 return res.send(err);
-            res.status(200).json(employers);
+            res.status(200).json({
+                "employers": employers
+            });
         });
     } else {
         Employer.findOne({name: req.query.name}).exec(function (err, employer) {
@@ -95,4 +112,36 @@ function deleteEmployer(req, res) {
     }
 };
 
-export default { getEmployerById, getEmployerBySearch, createEmployer, updateEmployer, deleteEmployer}
+// patch employers/auth/data
+function patchEmployersDataByAuthUser(req, res) {
+
+    if (!req.user._id) {
+        res.status(401).json({
+            "message": response.unauthorized 
+        });
+    } else if (req.user.user_type !== 'recruiter') {
+        res.status(401).json({
+            "message": response.onlyRecruiters
+        });
+    } else if (!req.body.data) {
+        res.status(400).json({
+            "message": response.patchEmployersMissingDataBody 
+        });
+    } else {
+        User.findById(req.user._id).exec( function(err, user){
+            if (err)
+                return res.send(err);
+            Employer.findById(user.employer_id).exec( function(err, employer){
+                employer.data = req.body.data;
+                employer.save( function(err, employer){
+                    if (err)
+                        return res.send(err);
+                    res.status(200).json(employer);
+                });
+            });
+        });
+    }
+};
+
+export default { getEmployerBySearch, getEmployerByAuthUser, getEmployerById, createEmployer, updateEmployer, deleteEmployer, patchEmployersDataByAuthUser }
+

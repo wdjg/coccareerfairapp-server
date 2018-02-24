@@ -10,7 +10,15 @@ let messages =  {
     authLoginInvalid: "LoginError: Invalid email password combination",
 
     // authentication off user type
-    authNoStudentsAllowed: "UnauthorizedError: Not available to students",
+    onlyStudent: "UnauthorizedError: Only available to students",   
+    notStudent: "UnauthorizedError: Not available to students",   
+    onlyRecruiters: "UnauthorizedError: Only available to recruiters",   
+    notRecruiters: "UnauthorizedError: Not available to recruiters",   
+    onlyAdmins: "UnauthorizedError: Only available to admins",   
+
+    // users
+    getUsersOnlyAdmin: "UnauthorizedError: Only available to admin",
+    patchUsersMissingDataBody: "InputError: Missing data in body",
 
     // lines
     postLinesAlreadyExists: "UniqueError: Line for this user already exists",
@@ -20,6 +28,7 @@ let messages =  {
     // getEmployersMissingNameQuery: "InputError: Missing name parameter in query",
     postEmployersMissingNameBody: "InputError: Missing name parameter in body",
     postEmployersQRMissingValueBody: "InputError: Missing value parameter in body",
+    patchEmployersMissingDataBody: "InputError: Missing data in body",
 
     // QR
     getQRNotFound: "NotFound: no QR found for your input",
