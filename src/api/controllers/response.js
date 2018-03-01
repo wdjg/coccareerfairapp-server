@@ -24,6 +24,9 @@ let messages =  {
     postLinesAlreadyExists: "UniqueError: Line for this user already exists",
     getLinesUsersMissingEmployeId: "InputError: Needs employer_id as a query parameter in url",
 
+    // lineEvents
+    getLineEventsByAuthUserUnauthorizedUserIdQuery: "UnauthorizedError: Attempting to access other user line info. Don't put user_id in your query",
+
     // employers
     // getEmployersMissingNameQuery: "InputError: Missing name parameter in query",
     postEmployersMissingNameBody: "InputError: Missing name parameter in body",

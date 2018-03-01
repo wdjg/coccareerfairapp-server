@@ -6,15 +6,17 @@ import MongooseValidator from 'mongoose-validatorjs'
 const Schema = mongoose.Schema;
 const Employer = mongoose.model('Employer');
 
-var UsersSchema = new Schema({
+var userSchema = new Schema({
     name: {
         type: String,
-        required: true
+        required: true,
+        index: true
     },
     email: {
         type: String,
         unique: true,
-        required: true
+        required: true,
+        index: true
     },
     hash: {
         type: String,
@@ -34,8 +36,9 @@ var UsersSchema = new Schema({
     },
     user_type: {
         type: String,
-        enum: ['student', 'recruiter'],
+        enum: ['student', 'recruiter', 'admin'],
         default: 'student',
+        index: true,
 
         /* If user_type is left blank, the custom validator will not execute.
            So, require user_type to be specified if emp_id is not null,
@@ -68,19 +71,19 @@ var UsersSchema = new Schema({
     }
 });
 
-UsersSchema.plugin(idvalidator);
+userSchema.plugin(idvalidator);
 
-UsersSchema.methods.setPassword = function (password) {
+userSchema.methods.setPassword = function (password) {
     this.salt = crypto.randomBytes(16).toString('hex');
     this.hash = crypto.pbkdf2Sync(password, this.salt, 1000, 64, 'sha512').toString('hex');
 };
 
-UsersSchema.methods.validPassword = function (password) {
+userSchema.methods.validPassword = function (password) {
     var hash = crypto.pbkdf2Sync(password, this.salt, 1000, 64, 'sha512').toString('hex');
     return this.hash === hash;
 };
 
-UsersSchema.methods.generateJwt = function () {
+userSchema.methods.generateJwt = function () {
     var expiry = new Date();
     expiry.setDate(expiry.getDate() + 7);
 
@@ -93,4 +96,4 @@ UsersSchema.methods.generateJwt = function () {
     }, process.env.SECRET);
 };
 
-module.exports = mongoose.model('User', UsersSchema);
+module.exports = mongoose.model('User', userSchema);

@@ -5,6 +5,7 @@ var employerSchema = new mongoose.Schema({
         type: String,
         unique: true,
         required: true,
+        index: true
     },
     data: {
         type: Object,

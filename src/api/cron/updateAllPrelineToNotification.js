@@ -61,18 +61,22 @@ function job() {
             for (var key in employerToLinesMap) {
                 var lines = employerToLinesMap[key];
                 lines.forEach( function(line) {
-                    line.updateStatus("notification");
-
-                    // send email notification to student to signal change.
-                    User.findOne({_id: line.user_id}).exec(function(err, user){
-                        if (err)
-                            return console.log("LineManagerError: error for finding user for line: " + line + " with error: " + err);
-                        
-                        var params = {
-                            name: user.name
+                    line.updateStatus("notification").then(function(msg) {
+                        // send email notification to student to signal change.
+                        if (msg !== 'success') {
+                            console.log("LineManagerError: failed to update status for line: " + line);
+                            return;
                         }
-                        EmailNotificationManager.sendEmailNotification(user.email, params);
-                    });
+                        User.findOne({_id: line.user_id}).exec(function(err, user){
+                            if (err)
+                                return console.log("LineManagerError: error for finding user for line: " + line + " with error: " + err);
+                            
+                            var params = {
+                                name: user.name
+                            }
+                            EmailNotificationManager.sendEmailNotification(user.email, params);
+                        });
+                    })
                 });
             }
         });
