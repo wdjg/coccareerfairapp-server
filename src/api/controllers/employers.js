@@ -5,6 +5,8 @@ const Line = mongoose.model('Line');
 
 import response from './response.js'
 
+// get /employers/auth
+// RECRUITERS ONLY
 function getEmployerByAuthUser(req, res) {
     if (!req.user._id) {
         res.status(401).json({
@@ -28,7 +30,7 @@ function getEmployerByAuthUser(req, res) {
     }
 }
 
-// get employers/:id
+// get /employers/:id
 // UNAUTHENTICATED ROUTE
 function getEmployerById(req, res) {
     Employer.findById(req.params.id).exec(function (err, employer) {

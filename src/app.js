@@ -7,6 +7,9 @@ import cookieParser from 'cookie-parser'
 import bodyParser from 'body-parser'
 import passport from 'passport'
 
+// async await with babel
+import "regenerator-runtime/runtime"
+
 // [SH] Bring in the data model
 require('./api/models/db');
 // [SH] Bring in the Passport config after model is defined

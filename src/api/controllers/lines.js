@@ -257,17 +257,17 @@ function updateLineStatus(req, res) {
                     "message": "No line found for parameter :id + " + req.params.id
                 });
             } else {
-                const msg = line.updateStatus(req.body.status);
-
-                if (msg !== 'success') {
-                    res.status(400).json({
-                        "message": msg
-                    });
-                } else {
-                    res.status(200).json({
-                        "message": "Successfully updated line with status " + req.body.status
-                    });
-                }
+                line.updateStatus(req.body.status).then(function(msg) {
+                    if (msg !== 'success') {
+                        res.status(400).json({
+                            "message": msg
+                        });
+                    } else {
+                        res.status(200).json({
+                            "message": "Successfully updated line with status " + req.body.status
+                        });
+                    }
+                });
             }      
         });
     }

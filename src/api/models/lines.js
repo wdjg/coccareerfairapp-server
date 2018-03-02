@@ -8,20 +8,24 @@ var lineSchema = new Schema({
     user_id: {
         type: Schema.Types.ObjectId,
         ref: 'User',
-        required: true
+        required: true,
+        index: true
     },
     employer_id: {
         type: Schema.Types.ObjectId,
         ref: 'Employer',
-        required: true
+        required: true,
+        index: true
     },
     created_by: {
         type: Date,
         default: Date.now,
+        index: true
     },
     updated_by: {
         type: Date,
         default: Date.now,
+        index: true
     },
     finished_by: {
         type: Date,
@@ -30,7 +34,8 @@ var lineSchema = new Schema({
     status: {
         type: String,
         enum: ['preline', 'notification', 'inline', 'startrecruiter', 'finishrecruiter', 'timeoutchurn', 'voluntarychurn'],
-        default: 'preline'
+        default: 'preline',
+        index: true
     }
 });
 
@@ -53,34 +58,34 @@ lineSchema.methods.logEvent = function() {
 // used for manually updating status, instead of using api route
 // also creates log event.
 // returns 'success' upon success, and an error message otherwise.
-lineSchema.methods.updateStatus = function(status) {
+lineSchema.methods.updateStatus = async function(status) {
     var msg = null;
     //verify that line progression is happening in order
     switch (status) {
 
         case 'notification':
             if (this.status !== 'preline') {
-                msg = "LineUpdateError: Cannot move to notification status from status " + status;
+                msg = "LineUpdateError: Cannot move to notification status from status " + this.status;
             }
             break;
         case 'inline':
             if (this.status !== 'notification') {
-                msg = "LineUpdateError: Cannot move to inline status from status " + status;
+                msg = "LineUpdateError: Cannot move to inline status from status " + this.status;
             }
             break;
         case 'startrecruiter':
             if (this.status !== 'inline') {
-                msg = "LineUpdateError: Cannot move to startrecruiter status from status " + status;
+                msg = "LineUpdateError: Cannot move to startrecruiter status from status " + this.status;
             }
             break;
         case 'finishrecruiter':
             if (this.status !== 'startrecruiter') {
-                msg = "LineUpdateError: Cannot move to finishrecruiter status from status " + status;
+                msg = "LineUpdateError: Cannot move to finishrecruiter status from status " + this.status;
             }
             break;
         case 'timeoutchurn':
             if (this.status !== 'notification' && this.status !== 'inline' && this.status !== 'startrecruiter') {
-                msg = "LineUpdateError: Cannot time out when in status " + status;
+                msg = "LineUpdateError: Cannot time out when in status " + this.status;
             }
             break;
         case 'preline':
@@ -99,31 +104,25 @@ lineSchema.methods.updateStatus = function(status) {
 
     this.status = status;
     this.updated_by = new Date();
-    this.save(function(err, line) {
-        if (err)
-            console.log("LineUpdateError: " + err);
-            return "LineUpdateError: " + err;
-        
+    await this.save().then(function(line) {
         line.logEvent();
-    });
-
-    //delete if in end state
-    switch (status) {
-        case 'finishrecruiter':
-        case 'timeoutchurn':
-        case 'voluntarychurn':
-            this.remove(function(err) {
-                if (err) {
-                    console.log("LineUpdateError: Could not remove line: " + err);
-                    return 'LineUpdateError: Could not remove line: ' + err;
-                }
-            });
-            break;
-        default:
-            break;
-    }
-
-    msg = 'success';
+        //delete if in end state
+        switch (status) {
+            case 'finishrecruiter':
+            case 'timeoutchurn':
+            case 'voluntarychurn':
+                return line.remove();
+                break;
+            default:
+                break;
+        }
+        return line;
+    }).then( function(line) {
+        msg = "success"
+    }).catch( function(err) {
+        console.log("LineUpdateError: " + err);
+        msg = "LineUpdateError: " + err;
+    })
     return msg;
 }
 

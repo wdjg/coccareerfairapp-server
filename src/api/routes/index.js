@@ -10,6 +10,7 @@ var auth = jwt({
 import authController from '../controllers/authentication'
 import userController from '../controllers/users'
 import lineController from '../controllers/lines'
+import lineEventsController from '../controllers/lineEvents'
 import employerController from '../controllers/employers'
 import qrController from '../controllers/qrCodeValues'
 
@@ -32,6 +33,11 @@ router.post('/lines', auth, lineController.createLine);
 router.put('/lines/:id', auth, lineController.updateLine);
 router.delete('/lines/:id', auth, lineController.deleteLine);
 router.patch('/lines/:id/status', auth, lineController.updateLineStatus); //to update line status field
+
+// lineEvents
+router.get('/events', auth, lineEventsController.getLineEvents); // returns array of all events, + query parameters. probably admin only for now.
+router.get('/events/auth', auth, lineEventsController.getLineEventsByAuthUser); //returns array of all events, + query parameters
+router.get('/events/:id', auth, lineEventsController.getLineEventById);
 
 // employers
 router.get('/employers', employerController.getEmployerBySearch); // UNAUTHENTICATED
