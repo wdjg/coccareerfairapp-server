@@ -10,11 +10,11 @@ let messages =  {
     authLoginInvalid: "LoginError: Invalid email password combination",
 
     // authentication off user type
-    onlyStudent: "UnauthorizedError: Only available to students",   
-    notStudent: "UnauthorizedError: Not available to students",   
-    onlyRecruiters: "UnauthorizedError: Only available to recruiters",   
-    notRecruiters: "UnauthorizedError: Not available to recruiters",   
-    onlyAdmins: "UnauthorizedError: Only available to admins",   
+    onlyStudent: "UnauthorizedError: Only available to students",
+    notStudent: "UnauthorizedError: Not available to students",
+    onlyRecruiters: "UnauthorizedError: Only available to recruiters",
+    notRecruiters: "UnauthorizedError: Not available to recruiters",
+    onlyAdmins: "UnauthorizedError: Only available to admins",
 
     // users
     getUsersOnlyAdmin: "UnauthorizedError: Only available to admin",
@@ -22,7 +22,7 @@ let messages =  {
 
     // lines
     postLinesAlreadyExists: "UniqueError: Line for this user already exists",
-    getLinesUsersMissingEmployeId: "InputError: Needs employer_id as a query parameter in url",
+    getLinesUsersMissingEmployerId: "InputError: Needs employer_id as a query parameter in url",
 
     // lineEvents
     getLineEventsByAuthUserUnauthorizedUserIdQuery: "UnauthorizedError: Attempting to access other user line info. Don't put user_id in your query",
