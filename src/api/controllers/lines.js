@@ -158,7 +158,7 @@ function getMyPlaceByEmployerId(user_id, employer_id) {
     //check current status
     //then count # of lines with further advanced status
     //then also add # of lines with same status, but with older update timestamps.
-    var myCurrentLine = Line.findOne({ user_id: user_id, 
+    var myCurrentLine = Line.findOne({ user_id: user_id,
                                        employer_id: employer_id }).exec();
     return myCurrentLine.then(function (myLine) {
         if (!myLine) {
@@ -183,7 +183,7 @@ function getMyPlaceByEmployerId(user_id, employer_id) {
             case 'notification':
                 //use exec() and Promise.all() to have queries run async. in parallel.
                 var inlineCount = Line.count({ employer_id: employer_id,
-                                               status: 'inline'}).exec(); 
+                                               status: 'inline'}).exec();
                 var notifCount = Line.count({ employer_id: employer_id,
                                               status: 'notification',
                                               updated_by: {$lt: myLine.updated_by}}).exec();
@@ -194,7 +194,7 @@ function getMyPlaceByEmployerId(user_id, employer_id) {
 
             case 'preline':
                 const aheadStatuses = ['inline', 'notification'];
-                var aheadCount = Line.count({ employer_id: employer_id, 
+                var aheadCount = Line.count({ employer_id: employer_id,
                                               status: aheadStatuses}).exec();
                 var prelineCount = Line.count({ employer_id: employer_id,
                                               status: 'preline',
@@ -220,7 +220,11 @@ function getUsersByEmployerId(req, res) {
         });
     } else if (!req.query.employer_id) {
         res.status(401).json({
-            "message": response.getLinesUsersMissingEmployeId
+            "message": response.getLinesUsersMissingEmployerId
+        });
+    } else if (req.user.user_type === 'student'){
+        res.status(401).json({
+            "message": response.notStudent
         });
     } else {
         var user_ids = [];
@@ -248,9 +252,9 @@ function updateLineStatus(req, res) {
         res.status(401).json({
             "message": response.unauthorized
         });
-    } else { 
+    } else {
         Line.findById({_id: req.params.id}).exec(async function (err, line) {
-            if (err) 
+            if (err)
                 return res.send(err);
             if (!line) {
                 res.status(400).json({
@@ -267,10 +271,9 @@ function updateLineStatus(req, res) {
                         "message": "Successfully updated line with status " + req.body.status
                     });
                 }
-            }      
+            }
         });
     }
 }
 
 export default { getLineByAuthUser, getLineById, createLine, updateLine, deleteLine, getStatsByEmployerId, getUsersByEmployerId, updateLineStatus }
-
