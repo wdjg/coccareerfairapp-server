@@ -60,23 +60,22 @@ function job() {
             // for each line item, change from preline to notificatio and notify the user.
             for (var key in employerToLinesMap) {
                 var lines = employerToLinesMap[key];
-                lines.forEach( function(line) {
-                    line.updateStatus("notification").then(function(msg) {
-                        // send email notification to student to signal change.
-                        if (msg !== 'success') {
-                            console.log("LineManagerError: failed to update status for line: " + line);
-                            return;
+                lines.forEach( async function(line) {
+                    let msg = await line.updateStatus("notification")
+                    // send email notification to student to signal change.
+                    if (msg !== 'success') {
+                        console.log("LineManagerError: failed to update status for line: " + line);
+                        return;
+                    }
+                    User.findOne({_id: line.user_id}).exec(function(err, user){
+                        if (err)
+                            return console.log("LineManagerError: error for finding user for line: " + line + " with error: " + err);
+                        
+                        var params = {
+                            name: user.name
                         }
-                        User.findOne({_id: line.user_id}).exec(function(err, user){
-                            if (err)
-                                return console.log("LineManagerError: error for finding user for line: " + line + " with error: " + err);
-                            
-                            var params = {
-                                name: user.name
-                            }
-                            EmailNotificationManager.sendEmailNotification(user.email, params);
-                        });
-                    })
+                        EmailNotificationManager.sendEmailNotification(user.email, params);
+                    });
                 });
             }
         });

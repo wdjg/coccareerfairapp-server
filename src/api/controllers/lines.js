@@ -249,7 +249,7 @@ function updateLineStatus(req, res) {
             "message": response.unauthorized
         });
     } else { 
-        Line.findById({_id: req.params.id}).exec(function (err, line) {
+        Line.findById({_id: req.params.id}).exec(async function (err, line) {
             if (err) 
                 return res.send(err);
             if (!line) {
@@ -257,17 +257,16 @@ function updateLineStatus(req, res) {
                     "message": "No line found for parameter :id + " + req.params.id
                 });
             } else {
-                line.updateStatus(req.body.status).then(function(msg) {
-                    if (msg !== 'success') {
-                        res.status(400).json({
-                            "message": msg
-                        });
-                    } else {
-                        res.status(200).json({
-                            "message": "Successfully updated line with status " + req.body.status
-                        });
-                    }
-                });
+                var msg = await line.updateStatus(req.body.status);
+                if (msg !== 'success') {
+                    res.status(400).json({
+                        "message": msg
+                    });
+                } else {
+                    res.status(200).json({
+                        "message": "Successfully updated line with status " + req.body.status
+                    });
+                }
             }      
         });
     }
