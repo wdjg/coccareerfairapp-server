@@ -46,7 +46,7 @@ function createLine(req, res) {
             "message": response.unauthorized
         });
     } else {
-        Line.findOne({user_id: req.user._id}).exec( function(err, line){
+        Line.findOne({user_id: req.user._id}).exec( async function(err, line){
             //check if line already exists, only one line per student
             if (err)
                 return res.send(err);
@@ -62,15 +62,53 @@ function createLine(req, res) {
             line.user_id = req.user._id;
             line.employer_id = req.body.employer_id;
             line.status = 'preline';
-            line.logEvent();
+
+            //console.log('attempting to save line'); //DEBUG
+            try {
+                await line.logEvent();
+                var savedLine = await line.save();
+                //console.log('before skipping, line status is %s', savedLine.status); //DEBUG
+                var skippedLine = await skipAhead(savedLine);
+                return res.status(200).json(skippedLine);
+            } catch (err) {
+                console.log('createLine: An error occurred: ' + err);
+                return res.send(err);
+            }
+
+/*
             line.save(function(err){
                 if(err)
                     return res.send(err)
                 res.status(200).json(line)
-            });
+            });*/
         });
     }
 
+}
+
+// helper for createLine: checks for skip ahead, and performs skip if appropriate.
+async function skipAhead(line) {
+    try {
+        var curSize = await getSizeByEmployerId(line.employer_id);
+        var batchSize = Line.getBatchSize();
+        //console.log('current size is %s, batch max is %s', curSize, batchSize); //DEBUG
+        if (curSize <= batchSize) {
+            // active batch isn't full. Send them directly in line
+            //console.log('So, attempting to skip ahead'); //DEBUG
+            var statusMsg = await line.updateStatus("inline");
+            if (statusMsg === 'success') {
+                return line;
+            } else {
+                return Promise.reject(statusMsg);
+            }
+        } else {
+            // active batch is already full. Just return, skipAhead's check is done.
+            return line;
+        } 
+    } catch (err) {
+        console.log('skipAhead: An error occurred');
+        return Promise.reject("skipAhead: An error occurred: " + err);
+    }
 }
 
 // put /lines/:id
@@ -133,7 +171,7 @@ function getStatsByEmployerId(req, res) {
         var currentPlace = getMyPlaceByEmployerId(req.user._id, req.query.employer_id)
 
         Promise.all([size, currentPlace]).then(function(values) {
-            console.log('size = ' + values[0] + ', myPlace = ' + values[1]);
+            //console.log('size = ' + values[0] + ', myPlace = ' + values[1]); //debug
             res.status(200).json({
                 "size": values[0],
                 "myPlace": values[1]

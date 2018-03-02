@@ -4,6 +4,8 @@ import idvalidator from 'mongoose-id-validator'
 const Schema = mongoose.Schema;
 const LineEvent = mongoose.model('LineEvent')
 
+const BATCH_SIZE = 5;
+
 var lineSchema = new Schema({
     user_id: {
         type: Schema.Types.ObjectId,
@@ -43,49 +45,55 @@ lineSchema.plugin(idvalidator);
 
 // create a LineEvent entry to keep track of history.
 // should be called after every update event.
-lineSchema.methods.logEvent = function() {
+// returns a promise (resolves to the line that logEvent() is called on)
+lineSchema.methods.logEvent = async function() {
     console.log("Line: Logging line update event");
     var event = LineEvent();
     event.user_id = this.user_id;
     event.employer_id = this.employer_id;
     event.status = this.status;
-    event.save(function(err) {
-        if (err)
-            return console.log("LineLogError: Unable to log line event: " + err);
-    });
+    try {
+        await event.save();
+        return this;
+    } catch (err) {
+        console.log("LineLogError: Unable to log line event: " + err);
+        return Promise.reject("LineLogError: Unable to log line event: " + err);
+    }
 }
+
 // update status of line
 // used for manually updating status, instead of using api route
 // also creates log event.
-// returns 'success' upon success, and an error message otherwise.
+// returns a promise: 'success' upon success, and an error message otherwise.
 lineSchema.methods.updateStatus = async function(status) {
     var msg = null;
     //verify that line progression is happening in order
+    //console.log('attempting to update line from %s to %s', this.status, status); //DEBUG
     switch (status) {
 
         case 'notification':
             if (this.status !== 'preline') {
-                msg = "LineUpdateError: Cannot move to notification status from status " + this.status;
+                msg = "LineUpdateError: Cannot move to notification status from status " + status;
             }
             break;
         case 'inline':
-            if (this.status !== 'notification') {
-                msg = "LineUpdateError: Cannot move to inline status from status " + this.status;
+            if (this.status !== 'notification' && this.status !== 'preline') {
+                msg = "LineUpdateError: Cannot move to inline status from status " + status;
             }
             break;
         case 'startrecruiter':
             if (this.status !== 'inline') {
-                msg = "LineUpdateError: Cannot move to startrecruiter status from status " + this.status;
+                msg = "LineUpdateError: Cannot move to startrecruiter status from status " + status;
             }
             break;
         case 'finishrecruiter':
             if (this.status !== 'startrecruiter') {
-                msg = "LineUpdateError: Cannot move to finishrecruiter status from status " + this.status;
+                msg = "LineUpdateError: Cannot move to finishrecruiter status from status " + status;
             }
             break;
         case 'timeoutchurn':
             if (this.status !== 'notification' && this.status !== 'inline' && this.status !== 'startrecruiter') {
-                msg = "LineUpdateError: Cannot time out when in status " + this.status;
+                msg = "LineUpdateError: Cannot time out when in status " + status;
             }
             break;
         case 'preline':
@@ -99,31 +107,35 @@ lineSchema.methods.updateStatus = async function(status) {
     }
 
     if (msg !== null) {
-        return msg;
+        return Promise.reject(msg);
     }
 
     this.status = status;
     this.updated_by = new Date();
-    await this.save().then(function(line) {
-        line.logEvent();
-        //delete if in end state
+    //console.log('attempting to save line with new status %s', this.status); //DEBUG
+
+    try {
+        var newlySavedLine = await this.save();
+        var newlyLoggedLine = await newlySavedLine.logEvent();
+
         switch (status) {
-            case 'finishrecruiter':
-            case 'timeoutchurn':
-            case 'voluntarychurn':
-                return line.remove();
-                break;
-            default:
-                break;
+        case 'finishrecruiter':
+        case 'timeoutchurn':
+        case 'voluntarychurn':
+            await newlyLoggedLine.remove();
+            break;
+        default:
+            break;
         }
-        return line;
-    }).then( function(line) {
-        msg = "success"
-    }).catch( function(err) {
-        console.log("LineUpdateError: " + err);
-        msg = "LineUpdateError: " + err;
-    })
-    return msg;
+        return 'success';
+    } catch (err) {
+        console.log('updateStatus: error: ' + err);
+        return Promise.reject('updateStatus: an error occurred: ' + err);
+    }
+}
+
+lineSchema.statics.getBatchSize = function() {
+    return BATCH_SIZE;
 }
 
 mongoose.model('Line', lineSchema);
