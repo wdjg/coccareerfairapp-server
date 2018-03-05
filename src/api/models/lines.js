@@ -73,27 +73,27 @@ lineSchema.methods.updateStatus = async function(status) {
 
         case 'notification':
             if (this.status !== 'preline') {
-                msg = "LineUpdateError: Cannot move to notification status from status " + status;
+                msg = "LineUpdateError: Cannot move to notification status from status " + this.status;
             }
             break;
         case 'inline':
             if (this.status !== 'notification' && this.status !== 'preline') {
-                msg = "LineUpdateError: Cannot move to inline status from status " + status;
+                msg = "LineUpdateError: Cannot move to inline status from status " + this.status;
             }
             break;
         case 'startrecruiter':
             if (this.status !== 'inline') {
-                msg = "LineUpdateError: Cannot move to startrecruiter status from status " + status;
+                msg = "LineUpdateError: Cannot move to startrecruiter status from status " + this.status;
             }
             break;
         case 'finishrecruiter':
             if (this.status !== 'startrecruiter') {
-                msg = "LineUpdateError: Cannot move to finishrecruiter status from status " + status;
+                msg = "LineUpdateError: Cannot move to finishrecruiter status from status " + this.status;
             }
             break;
         case 'timeoutchurn':
             if (this.status !== 'notification' && this.status !== 'inline' && this.status !== 'startrecruiter') {
-                msg = "LineUpdateError: Cannot time out when in status " + status;
+                msg = "LineUpdateError: Cannot time out when in status " + this.status;
             }
             break;
         case 'preline':
@@ -102,7 +102,7 @@ lineSchema.methods.updateStatus = async function(status) {
         case 'voluntarychurn':
             break; //can enter or exit at any time
         default:
-            msg = "Invalid status desired: " + status;
+            msg = "Invalid status desired: " + this.status;
             break;
     }
 

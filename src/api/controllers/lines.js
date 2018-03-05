@@ -299,14 +299,15 @@ function updateLineStatus(req, res) {
                     "message": "No line found for parameter :id + " + req.params.id
                 });
             } else {
-                var msg = await line.updateStatus(req.body.status);
-                if (msg !== 'success') {
-                    res.status(400).json({
-                        "message": msg
-                    });
-                } else {
+                try {
+                    var msg = await line.updateStatus(req.body.status);
                     res.status(200).json({
-                        "message": "Successfully updated line with status " + req.body.status
+                          "message": "Successfully updated line with status " + req.body.status
+                    });
+                } catch (err) {
+                    console.log(err);
+                    res.status(400).json({
+                        "message": err
                     });
                 }
             }
