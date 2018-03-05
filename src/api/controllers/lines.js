@@ -45,6 +45,10 @@ function createLine(req, res) {
         res.status(401).json({
             "message": response.unauthorized
         });
+    } else if (req.user.user_type !== 'student') {
+        res.status(401).json({
+            "message": response.onlyStudent
+        });
     } else {
         Line.findOne({user_id: req.user._id}).exec( function(err, line){
             //check if line already exists, only one line per student
