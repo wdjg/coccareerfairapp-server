@@ -4,7 +4,7 @@ const Line = mongoose.model('Line');
 const User = mongoose.model('User');
 const LineEvent = mongoose.model('LineEvent');
 
-const BATCH_SIZE = 5;
+const BATCH_SIZE = Line.getBatchSize();
 
 // notifies students up until the BATCH_SIZE per employer
 function job() {
