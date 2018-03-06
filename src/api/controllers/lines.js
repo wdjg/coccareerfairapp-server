@@ -272,10 +272,7 @@ function getUsersByEmployerId(req, res) {
         query.exec(function (err, lines) {
             if (err)
                 return res.send(err);
-            /*for (var i = 0; i < lines.length; i++) {
-                user_ids[i] = lines[i].user_id;
-                line_ids[i] = lines[i]._id;
-            }*/
+
             user_ids = lines.map(line => line.user_id);
             line_ids = lines.map(line => line._id);
         }).then(function () {
