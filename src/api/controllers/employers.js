@@ -8,11 +8,7 @@ import response from './response.js'
 // get /employers/auth
 // RECRUITERS ONLY
 function getEmployerByAuthUser(req, res) {
-    if (!req.user._id) {
-        res.status(401).json({
-            "message": response.unauthorized 
-        });
-    } else if (req.user.user_type !== 'recruiter') {
+    if (req.user.user_type !== 'recruiter') {
         res.status(401).json({
             "message": response.onlyRecruiters
         });
@@ -63,11 +59,7 @@ function getEmployerBySearch(req, res) {
 
 // post employers
 function createEmployer(req, res) {
-    if (!req.user._id) {
-        res.status(401).json({
-            "message": response.unauthorized 
-        });
-    } else if (!req.body.name) {
+    if (!req.body.name) {
         res.status(400).json({
             "message": response.postEmployersMissingNameBody
         });
@@ -87,44 +79,32 @@ function createEmployer(req, res) {
 
 // put employers/:id
 function updateEmployer(req, res) {
-    if (!req.user._id) {
-        res.status(401).json({
-            "message": response.unauthorized 
-        });
-    } else {
-        Employer.findByIdAndUpdate({_id: req.params.id}, req.body, {new: true}).exec(function (err, employer) {
-            if (err)
-                return res.send(err);
-            res.status(200).json(employer);
-        })
-    }
+
+    Employer.findByIdAndUpdate({_id: req.params.id}, req.body, {new: true}).exec(function (err, employer) {
+        if (err)
+            return res.send(err);
+        res.status(200).json(employer);
+    })
+
 };
 
 // delete employers/:id
 function deleteEmployer(req, res) {
-    if (!req.user._id) {
-        res.status(401).json({
-            "message": response.unauthorized 
-        });
-    } else {
-        Employer.remove({_id: req.params.id}).exec(function (err, employer) {
-            if (err)
-                res.send(err);
-            res.status(200).json({
-                "message": response.success
-            })
+
+    Employer.remove({_id: req.params.id}).exec(function (err, employer) {
+        if (err)
+            res.send(err);
+        res.status(200).json({
+            "message": response.success
         })
-    }
+    })
+    
 };
 
 // patch employers/auth/data
 function patchEmployersDataByAuthUser(req, res) {
 
-    if (!req.user._id) {
-        res.status(401).json({
-            "message": response.unauthorized 
-        });
-    } else if (req.user.user_type !== 'recruiter') {
+    if (req.user.user_type !== 'recruiter') {
         res.status(401).json({
             "message": response.onlyRecruiters
         });
