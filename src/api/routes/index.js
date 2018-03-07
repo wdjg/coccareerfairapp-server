@@ -26,7 +26,8 @@ router.get('/users/:id', auth, userController.getUserById);
 
 // lines
 router.get('/lines', auth, lineController.getLineByAuthUser);
-router.get('/lines/stats', auth, lineController.getStatsByEmployerId);
+router.get('/lines/auth/stats', auth, lineController.getStatsByEmployerId);
+router.get('/lines/stats', lineController.getStatsByEmployerIdNoAuth); // UNAUTHENTICATED
 router.get('/lines/users', auth, lineController.getUsersByEmployerId); // get inline users for company
 router.get('/lines/:id', auth, lineController.getLineById);
 router.post('/lines', auth, lineController.createLine);

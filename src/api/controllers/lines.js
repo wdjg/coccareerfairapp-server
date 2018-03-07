@@ -159,7 +159,7 @@ function deleteLine(req, res) {
 
 }
 
-// get /lines/stats/?employer_id=xxx
+// get /lines/auth/stats?employer_id=xxx
 function getStatsByEmployerId(req, res) {
     if (!req.user._id) {
         res.status(401).json({
@@ -167,8 +167,8 @@ function getStatsByEmployerId(req, res) {
         });
     } else {
         //use promises to have queries run async. in parallel.
-        var size = getSizeByEmployerId(req.query.employer_id)
-        var currentPlace = getMyPlaceByEmployerId(req.user._id, req.query.employer_id)
+        var size = getSizeByEmployerId(req.query.employer_id);
+        var currentPlace = getMyPlaceByEmployerId(req.user._id, req.query.employer_id);
 
         Promise.all([size, currentPlace]).then(function(values) {
             //console.log('size = ' + values[0] + ', myPlace = ' + values[1]); //debug
@@ -180,6 +180,22 @@ function getStatsByEmployerId(req, res) {
             res.send(err);
         })
     }
+}
+
+// get /lines/stats?employer_id=xxx
+// UNAUTHENTICATED
+function getStatsByEmployerIdNoAuth(req, res) {
+    var size = getSizeByEmployerId(req.query.employer_id);
+    
+    //obviously Promise.all is overkill for only 1 statistic, but we plan to add more later anyway.
+    Promise.all([size]).then(function(values) {
+        //console.log('size = ' + values[0]); //debug
+        res.status(200).json({
+            "size": values[0],
+        });
+    }).catch ( function(err) {
+        res.send(err);
+    })
 }
 
 //helper: given employer_id, returns the # of users in line for that employer, as a promise.
@@ -315,4 +331,4 @@ function updateLineStatus(req, res) {
     }
 }
 
-export default { getLineByAuthUser, getLineById, createLine, updateLine, deleteLine, getStatsByEmployerId, getUsersByEmployerId, updateLineStatus }
+export default { getLineByAuthUser, getLineById, createLine, updateLine, deleteLine, getStatsByEmployerId, getStatsByEmployerIdNoAuth, getUsersByEmployerId, updateLineStatus }
