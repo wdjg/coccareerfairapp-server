@@ -1,4 +1,3 @@
-
 import mongoose from 'mongoose'
 const User = mongoose.model('User');
 const Line = mongoose.model('Line');

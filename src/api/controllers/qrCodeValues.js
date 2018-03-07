@@ -1,4 +1,5 @@
 import mongoose from 'mongoose'
+const User = mongoose.model('User');
 const QRCodeValue = mongoose.model('QRCodeValue');
 
 import response from './response.js'
