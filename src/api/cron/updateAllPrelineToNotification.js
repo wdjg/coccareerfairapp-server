@@ -11,10 +11,10 @@ function job() {
     // console.log('LineManager: updating preline to notification')
     // counts how many users are in Notification(N) or Inline(IL)
     // N + IL <= BATCH_SIZE
-    var employerToCountMap = {};
+    var notifAndInlineLines = {};
 
     // keeps track of lines to notify per employer
-    var employerToLinesMap = {};
+    var prelineLines = {};
 
     // query to count all notification and inline, grouped by employer_id
     // i can probably replace this with count and group by.
@@ -25,12 +25,13 @@ function job() {
             return console.log("LineManagerError: " + err);
         // count up lines by employer
         lines.forEach( function(line) {
-            if (employerToCountMap[line.employer_id]) {
-                employerToCountMap[line.employer_id]++;
+            if (notifAndInlineLines[line.employer_id]) {
+                notifAndInlineLines[line.employer_id]++;
             } else {
-                employerToCountMap[line.employer_id] = 1;
+                notifAndInlineLines[line.employer_id] = 1;
             }
         });
+
     }).then(function() {
 
         // query for all preline n students, sorted by desc order.
@@ -42,24 +43,24 @@ function job() {
             // keep track of prelines to update to notification
             lines.forEach( function(line) {
                 // if it exists
-                if (employerToLinesMap[line.employer_id]) {
+                if (prelineLines[line.employer_id]) {
                     // add to the array, as long as selected PL + N + IL < BATCH_SIZE
-                    if (employerToLinesMap[line.employer_id].length + employerToCountMap[line.employer_id] || 0 < BATCH_SIZE) {
-                        employerToLinesMap[line.employer_id].push(line);
+                    if ((prelineLines[line.employer_id].length + notifAndInlineLines[line.employer_id] || 0) < BATCH_SIZE) {
+                        prelineLines[line.employer_id].push(line);
                     }
                 } else {
                     // otherwise create the array, as long as N + IL is not maxed out.
-                    if (employerToCountMap[line.employer_id] || 0 < BATCH_SIZE) {
-                        employerToLinesMap[line.employer_id] = [line];
+                    if ((notifAndInlineLines[line.employer_id] || 0) < BATCH_SIZE) {
+                        prelineLines[line.employer_id] = [line];
                     } 
                 }
             });
         }).then(function(){
-            // console.log(employerToCountMap)
-            // console.log(employerToLinesMap)
+            // console.log(notifAndInlineLines)
+            // console.log(prelineLines)
             // for each line item, change from preline to notificatio and notify the user.
-            for (var key in employerToLinesMap) {
-                var lines = employerToLinesMap[key];
+            for (var key in prelineLines) {
+                var lines = prelineLines[key];
                 lines.forEach( async function(line) {
                     let msg = await line.updateStatus("notification")
                     // send email notification to student to signal change.
