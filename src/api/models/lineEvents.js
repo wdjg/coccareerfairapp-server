@@ -15,6 +15,12 @@ var lineEventSchema = new mongoose.Schema({
         required: true,
         index: true
     },
+    line_id: {
+        type: Schema.Types.ObjectId,
+        //no ref since line objects are so short lived (?)
+        required: true,
+        index: true
+    },
     created_by: {
         type: Date,
         default: Date.now,

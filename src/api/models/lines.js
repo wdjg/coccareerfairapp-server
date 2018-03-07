@@ -52,6 +52,7 @@ lineSchema.methods.logEvent = async function() {
     event.user_id = this.user_id;
     event.employer_id = this.employer_id;
     event.status = this.status;
+    event.line_id = this._id;
     try {
         await event.save();
         return this;
