@@ -5,6 +5,8 @@ let messages =  {
     // authentication
     userAlreadyExists: "RegisterError: User already exists!",
     authRegisterMissingFields: "RegisterError: Need name, email, and password",
+    authRegisterNoEmployerFound: "RegisterError: No employer found with that passcode",
+    authRegisterWithEmpIdNotAllowed: "RegisterError: Passing in employer_id is not allowed. Use company passcode",
     authLoginMissingFields: "LoginError: Need email and password fields",
     authLoginNoUserFound: "LoginError: No user found for email",
     authLoginInvalid: "LoginError: Invalid email password combination",
