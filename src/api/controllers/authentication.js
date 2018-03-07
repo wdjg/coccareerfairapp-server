@@ -2,6 +2,7 @@ import passport from 'passport'
 import mongoose from 'mongoose'
 import response from './response.js'
 const User = mongoose.model('User');
+const Employer = mongoose.model('Employer');
 
 function sendJSONresponse(res, status, content) {
     res.status(status);
@@ -14,9 +15,14 @@ function register(req, res) {
         "message": response.authRegisterMissingFields 
       });
       return;
+    } else if (req.body.employer_id) {
+        sendJSONresponse(res, 400, {
+            "message": response.authRegisterWithEmpIdNotAllowed
+        });
+      return;
     }
 
-    User.findOne({email: req.body.email}).exec(function(err, user) {
+    User.findOne({email: req.body.email}).exec(async function(err, user) {
         // if user is found, already exists
         if(user) {
             sendJSONresponse(res, 400, {
@@ -33,26 +39,53 @@ function register(req, res) {
 
             //need to enforce default here since jwt builds off of this.
             user.user_type = (req.body.user_type === undefined) ? 'student' : req.body.user_type;
-            user.employer_id = req.body.employer_id;
 
-            user.save(function (err) {
-                if (!err) {
-                    var token;
-                    token = user.generateJwt();
-                    res.status(200);
-                    res.json({
-                        "token": token
-                    });
-                } else {
-                    sendJSONresponse(res, 400, {
+            //check if they're trying to register at a specific company
+            if (req.body.passcode) {
+                try {
+                    let emp_query = Employer.findOne({passcode: req.body.passcode});
+                    var found_emp = await emp_query.exec();
+                } catch (err) {
+                    console.log(err);
+                    return sendJSONresponse(res, 400, {
                         "message": err
-                    })
+                    });
                 }
-                
-            });
+
+                if (found_emp) {
+                    user.employer_id = found_emp._id;
+                    return saveUser(res, user);
+                } else {
+                    return sendJSONresponse(res, 404, {
+                        "message": response.authRegisterNoEmployerFound
+                    });
+                }
+            } else {
+                //no passcode specified, they're just a student. go ahead and save
+                return saveUser(res, user);
+            }
         }
     });
 };
+
+//helper to save user, to avoid code duplication
+function saveUser(res, user) {
+    user.save(function (err) {
+        if (!err) {
+            var token;
+            token = user.generateJwt();
+            res.status(200);
+            return res.json({
+                "token": token
+            });
+        } else {
+            console.log(err);
+            return sendJSONresponse(res, 400, {
+                "message": err
+            })
+        }
+    });
+}
 
 function login(req, res) {
 

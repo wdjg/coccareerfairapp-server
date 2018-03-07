@@ -72,12 +72,15 @@ function createEmployer(req, res) {
             "message": response.postEmployersMissingNameBody
         });
     } else {
-        var employer = Employer();
-        employer.name = req.body.name
-        employer.save(function(err){
+        var newEmployer = Employer();
+        newEmployer.name = req.body.name;
+        newEmployer.passcode = Employer.generateRandomCode();
+
+        //if randomly generated code happens to be a duplicate, just have client try again.
+        newEmployer.save(function(err){
             if(err)
                 return res.send(err);
-            res.status(200).json(employer);
+            res.status(200).json(newEmployer);
         });
     }
 };

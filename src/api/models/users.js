@@ -45,7 +45,7 @@ var userSchema = new Schema({
            so we can verify that user_type is recruiter. */
         required: [function() {
             return this.employer_id !== undefined;
-        }, 'If employer_id is specified, user_type must be recruiter'],
+        }, 'If company passcode is specified, user_type must be recruiter'],
 
         validator: function(v, cb) {
             if (v === 'recruiter') {
@@ -66,7 +66,7 @@ var userSchema = new Schema({
         ref: 'Employer',
         required: [function() {
             return this.user_type === 'recruiter';
-        }, 'If user_type is recruiter, employer_id must be specified'],
+        }, 'If user_type is recruiter, need correct company passcode'],
         default: null
     }
 });
