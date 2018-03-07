@@ -191,7 +191,7 @@ function getStatsByEmployerIdNoAuth(req, res) {
     Promise.all([size]).then(function(values) {
         //console.log('size = ' + values[0]); //debug
         res.status(200).json({
-            "size": values[0],
+            "size": values[0]
         });
     }).catch ( function(err) {
         res.send(err);
