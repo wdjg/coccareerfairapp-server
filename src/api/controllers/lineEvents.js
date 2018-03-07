@@ -8,7 +8,7 @@ import response from './response.js';
 
 
 // get /events
-// query: user_id, employer_id, created_by, status
+// query: user_id, employer_id, line_id, created_by, status
 // future params: limit, sort
 // by default sorted created_by desc
 // ADMIN ONLY
@@ -83,6 +83,5 @@ function getLineEventById(req, res) {
     }
 
 }
-
 
 export default { getLineEvents, getLineEventsByAuthUser, getLineEventById }
