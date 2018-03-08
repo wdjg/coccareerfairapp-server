@@ -132,6 +132,12 @@ function deleteLine(req, res) {
 // get /lines/auth/stats?employer_id=xxx
 function getStatsByEmployerId(req, res) {
 
+    if (!req.query.employer_id) {
+        return res.status(400).json({
+            "message": response.getLineStatsMissingEmployerId
+        });
+    }
+
     //use promises to have queries run async. in parallel.
     var size = getSizeByEmployerId(req.query.employer_id)
     var currentPlace = getMyPlaceByEmployerId(req.user._id, req.query.employer_id)
@@ -150,6 +156,13 @@ function getStatsByEmployerId(req, res) {
 // get /lines/stats?employer_id=xxx
 // UNAUTHENTICATED
 function getStatsByEmployerIdNoAuth(req, res) {
+
+    if (!req.query.employer_id) {
+        return res.status(400).json({
+            "message": response.getLineStatsMissingEmployerId
+        });
+    }
+
     var size = getSizeByEmployerId(req.query.employer_id);
     
     //obviously Promise.all is overkill for only 1 statistic, but we plan to add more later anyway.
