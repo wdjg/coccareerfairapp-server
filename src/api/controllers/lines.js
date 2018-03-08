@@ -7,45 +7,29 @@ import response from './response.js';
 // get /lines
 function getLineByAuthUser(req, res) {
 
-    if (!req.user._id) {
-        res.status(401).json({
-            "message": response.unauthorized
-        });
-    } else {
-        Line.findOne({user_id: req.user._id}).exec(function (err, line) {
-            if (err)
-                return res.send(err);
-            res.status(200).json(line);
-        });
-    }
+    Line.findOne({user_id: req.user._id}).exec(function (err, line) {
+        if (err)
+            return res.send(err);
+        res.status(200).json(line);
+    });
 
 }
 
 // get /lines/:id
 function getLineById(req, res) {
 
-    if (!req.user._id) {
-        res.status(401).json({
-            "message": response.unauthorized
-        });
-    } else {
-        Line.findById(req.params.id).exec(function (err, line) {
-            if (err)
-                return res.send(err);
-            res.status(200).json(line);
-        });
-    }
+    Line.findById(req.params.id).exec(function (err, line) {
+        if (err)
+            return res.send(err);
+        res.status(200).json(line);
+    });
 
 }
 
 // post /lines
 function createLine(req, res) {
 
-    if (!req.user._id) {
-        res.status(401).json({
-            "message": response.unauthorized
-        });
-    } else if (req.user.user_type !== 'student') {
+    if (req.user.user_type !== 'student') {
         res.status(401).json({
             "message": response.onlyStudent
         });
@@ -78,16 +62,8 @@ function createLine(req, res) {
                 console.log('createLine: An error occurred: ' + err);
                 return res.send(err);
             }
-
-/*
-            line.save(function(err){
-                if(err)
-                    return res.send(err)
-                res.status(200).json(line)
-            });*/
         });
     }
-
 }
 
 // helper for createLine: checks for skip ahead, and performs skip if appropriate.
@@ -118,11 +94,7 @@ async function skipAhead(line) {
 // put /lines/:id
 function updateLine(req, res) {
 
-    if (!req.user._id) {
-        res.status(401).json({
-            "message": response.unauthorized
-        });
-    } else if (req.user.user_type == 'student') {
+    if (req.user.user_type == 'student') {
         req.status(401).json({
             "message": response.authNoStudentsAllowed
         })
@@ -147,43 +119,32 @@ function updateLine(req, res) {
 // delete /lines/:id
 function deleteLine(req, res) {
 
-    if (!req.user._id) {
-        res.status(401).json({
-            "message": response.unauthorized
-        });
-    } else {
-        Line.remove({_id: req.params.id}).exec(function (err, line) {
-            if (err)
-                return res.send(err);
-            res.status(200).json({
-                "message": response.success
-            })
+    Line.remove({_id: req.params.id}).exec(function (err, line) {
+        if (err)
+            return res.send(err);
+        res.status(200).json({
+            "message": response.success
         })
-    }
+    })
 
 }
 
 // get /lines/auth/stats?employer_id=xxx
 function getStatsByEmployerId(req, res) {
-    if (!req.user._id) {
-        res.status(401).json({
-            "message": response.unauthorized
-        });
-    } else {
-        //use promises to have queries run async. in parallel.
-        var size = getSizeByEmployerId(req.query.employer_id);
-        var currentPlace = getMyPlaceByEmployerId(req.user._id, req.query.employer_id);
 
-        Promise.all([size, currentPlace]).then(function(values) {
-            //console.log('size = ' + values[0] + ', myPlace = ' + values[1]); //debug
-            res.status(200).json({
-                "size": values[0],
-                "myPlace": values[1]
-            });
-        }).catch ( function(err) {
-            res.send(err);
-        })
-    }
+    //use promises to have queries run async. in parallel.
+    var size = getSizeByEmployerId(req.query.employer_id)
+    var currentPlace = getMyPlaceByEmployerId(req.user._id, req.query.employer_id)
+
+    Promise.all([size, currentPlace]).then(function(values) {
+        //console.log('size = ' + values[0] + ', myPlace = ' + values[1]); //debug
+        res.status(200).json({
+            "size": values[0],
+            "myPlace": values[1]
+        });
+    }).catch ( function(err) {
+        res.send(err);
+    })
 }
 
 // get /lines/stats?employer_id=xxx
@@ -272,11 +233,7 @@ function getMyPlaceByEmployerId(user_id, employer_id) {
 // get /lines/users?employer_id=xxxxx
 function getUsersByEmployerId(req, res) {
 
-    if (!req.user._id) {
-        res.status(401).json({
-            "message": response.unauthorized
-        });
-    } else if (!req.query.employer_id) {
+    if (!req.query.employer_id) {
         res.status(401).json({
             "message": response.getLinesUsersMissingEmployerId
         });
@@ -328,33 +285,29 @@ function getUsersByEmployerId(req, res) {
 // patch /lines/:id/status
 // currently, only the status field is mutable this way
 function updateLineStatus(req, res) {
-    if (!req.user._id) {
-        res.status(401).json({
-            "message": response.unauthorized
-        });
-    } else {
-        Line.findById({_id: req.params.id}).exec(async function (err, line) {
-            if (err)
-                return res.send(err);
-            if (!line) {
-                res.status(400).json({
-                    "message": "No line found for parameter :id + " + req.params.id
+
+    Line.findById({_id: req.params.id}).exec(async function (err, line) {
+        if (err)
+            return res.send(err);
+        if (!line) {
+            res.status(400).json({
+                "message": "No line found for parameter :id + " + req.params.id
+            });
+        } else {
+            try {
+                var msg = await line.updateStatus(req.body.status);
+                res.status(200).json({
+                      "message": "Successfully updated line with status " + req.body.status
                 });
-            } else {
-                try {
-                    var msg = await line.updateStatus(req.body.status);
-                    res.status(200).json({
-                          "message": "Successfully updated line with status " + req.body.status
-                    });
-                } catch (err) {
-                    console.log(err);
-                    res.status(400).json({
-                        "message": err
-                    });
-                }
+            } catch (err) {
+                console.log(err);
+                res.status(400).json({
+                    "message": err
+                });
             }
-        });
-    }
+        }
+    });
+    
 }
 
 export default { getLineByAuthUser, getLineById, createLine, updateLine, deleteLine, getStatsByEmployerId, getStatsByEmployerIdNoAuth, getUsersByEmployerId, updateLineStatus }

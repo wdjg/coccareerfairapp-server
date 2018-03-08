@@ -1,4 +1,3 @@
-
 import mongoose from 'mongoose'
 const User = mongoose.model('User');
 const Line = mongoose.model('Line');
@@ -14,11 +13,7 @@ import response from './response.js';
 // ADMIN ONLY
 function getLineEvents(req, res) {
 
-    if (!req.user._id) {
-        res.status(401).json({
-            "message": response.unauthorized
-        });
-    } else if (req.user.user_type !== 'admin') {
+    if (req.user.user_type !== 'admin') {
         res.status(401).json({
             "message": response.onlyAdmins
         });
@@ -43,11 +38,7 @@ function getLineEvents(req, res) {
 // by default sorted created_by desc.
 function getLineEventsByAuthUser(req, res) {
 
-    if (!req.user._id) {
-        res.status(401).json({
-            "message": response.unauthorized
-        });
-    } else if (req.query.user_id && req.query.user_id !== req.user._id) {
+    if (req.query.user_id && req.query.user_id !== req.user._id) {
         res.status(401).json({
             "message": response.getLineEventsByAuthUserUnauthorizedUserIdQuery
         });
@@ -70,17 +61,11 @@ function getLineEventsByAuthUser(req, res) {
 // returns ONE LINEEVENT
 function getLineEventById(req, res) {
 
-    if (!req.user._id) {
-        res.status(401).json({
-            "message": response.unauthorized
-        });
-    } else {
-        LineEvent.findById(req.params.id).exec(function (err, event) {
-            if (err)
-                return res.send(err);
-            res.status(200).json(event);
-        });
-    }
+    LineEvent.findById(req.params.id).exec(function (err, event) {
+        if (err)
+            return res.send(err);
+        res.status(200).json(event);
+    });
 
 }
 
