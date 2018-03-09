@@ -17,7 +17,6 @@ var lineEventSchema = new mongoose.Schema({
     },
     line_id: {
         type: Schema.Types.ObjectId,
-        ref: 'Line',
         required: true,
         index: true
     },
