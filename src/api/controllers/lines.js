@@ -4,16 +4,18 @@ const Line = mongoose.model('Line');
 
 import response from './response.js';
 
-// get /lines
+// get /lines/auth
 function getLineByAuthUser(req, res) {
-
-    Line.findOne({user_id: req.user._id}).exec(function (err, line) {
+    Line.find( { user_id: req.user._id } ).exec(function (err, lines) {
         if (err)
             return res.send(err);
-        res.status(200).json(line);
+        res.status(200).json({
+            "lines": lines
+        });
     });
-
 }
+
+
 
 // get /lines/:id
 function getLineById(req, res) {
