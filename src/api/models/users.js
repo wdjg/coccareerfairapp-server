@@ -87,13 +87,25 @@ userSchema.methods.generateJwt = function () {
     var expiry = new Date();
     expiry.setDate(expiry.getDate() + 7);
 
-    return jwt.sign({
-        _id: this._id,
-        email: this.email,
-        name: this.name,
-        user_type: this.user_type,
-        exp: parseInt(expiry.getTime() / 1000),
-    }, process.env.SECRET);
+    if (this.user_type === 'recruiter') {
+        return jwt.sign({
+            _id: this._id,
+            email: this.email,
+            name: this.name,
+            user_type: this.user_type,
+            employer_id: this.employer_id,
+            exp: parseInt(expiry.getTime() / 1000),
+        }, process.env.SECRET);
+    } else {
+        return jwt.sign({
+            _id: this._id,
+            email: this.email,
+            name: this.name,
+            user_type: this.user_type,
+            exp: parseInt(expiry.getTime() / 1000),
+        }, process.env.SECRET);
+    }
+
 };
 
 module.exports = mongoose.model('User', userSchema);
