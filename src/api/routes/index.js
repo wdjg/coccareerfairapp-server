@@ -46,7 +46,7 @@ router.get('/employers/auth', auth, employerController.getEmployerByAuthUser);
 router.get('/employers/:id', employerController.getEmployerById); // UNAUTHENTICATED
 router.post('/employers', auth, employerController.createEmployer);
 router.put('/employers/:id', auth, employerController.updateEmployer);
-router.patch('/employers/auth/data', auth, employerController.patchEmployersDataByAuthUser); // recruiter only
+router.patch('/employers/auth/profile', auth, employerController.patchEmployersProfileByAuthUser); // recruiter only
 router.delete('/employers/:id', auth, employerController.deleteEmployer);
 
 // QR

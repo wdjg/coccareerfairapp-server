@@ -96,37 +96,40 @@ function deleteEmployer(req, res) {
             res.send(err);
         res.status(200).json({
             "message": response.success
-        })
-    })
+        });
+    });
     
 };
 
-// patch employers/auth/data
-function patchEmployersDataByAuthUser(req, res) {
+// patch employers/auth/profile
+function patchEmployersProfileByAuthUser(req, res) {
 
     if (req.user.user_type !== 'recruiter') {
         res.status(401).json({
             "message": response.onlyRecruiters
         });
-    } else if (!req.body.data) {
+    } else if (!req.body) {
         res.status(400).json({
             "message": response.patchEmployersMissingDataBody 
         });
     } else {
-        User.findById(req.user._id).exec( function(err, user){
-            if (err)
-                return res.send(err);
-            Employer.findById(user.employer_id).exec( function(err, employer){
-                employer.data = req.body.data;
-                employer.save( function(err, employer){
+
+        try {
+            return Employer.findById(req.user.employer_id).exec(function(err, employer) {
+                employer.profile = req.body;
+                employer.save(function(err, employer) {
                     if (err)
                         return res.send(err);
-                    res.status(200).json(employer);
+                    return res.status(200).json(employer);
                 });
             });
-        });
+        } catch (err) {
+            return res.status(500).json({
+                "message": err
+            });
+        }
     }
-};
+}
 
-export default { getEmployerBySearch, getEmployerByAuthUser, getEmployerById, createEmployer, updateEmployer, deleteEmployer, patchEmployersDataByAuthUser }
+export default { getEmployerBySearch, getEmployerByAuthUser, getEmployerById, createEmployer, updateEmployer, deleteEmployer, patchEmployersProfileByAuthUser }
 
