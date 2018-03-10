@@ -231,56 +231,79 @@ function getMyPlaceByEmployerId(user_id, employer_id) {
 }
 
 // get /lines/users?employer_id=xxxxx
+// get /lines/users
 function getUsersByEmployerId(req, res) {
+    //if auth user is a recruiter, their emp_id is used (ignore query; recruiters can only see their own batch)
+    //else, use query parameter.
+    //if query blank and auth user isn't a recruiter, not allowed.
 
-    if (!req.query.employer_id) {
-        res.status(401).json({
-            "message": response.getLinesUsersMissingEmployerId
-        });
-    } else if (req.user.user_type === 'student'){
-        res.status(401).json({
+    if (req.user.user_type === 'student'){
+        return res.status(401).json({
             "message": response.notStudent
         });
-    } else {
-        var user_ids = [];
-        var line_ids = [];
+    } 
 
-        var query = Line.find({ employer_id: req.query.employer_id }).where({ status: "inline" }).sort({ updated_by: -1 })
-        query.exec(function (err, lines) {
+    let emp_id;
+    if (req.user.user_type === 'recruiter') {
+        emp_id = req.user.employer_id;
+    } else if (req.query.employer_id) {
+        emp_id = req.query.employer_id;
+    } else {
+        return res.status(401).json({
+            "message": response.getLinesUsersMissingEmployerId
+        });
+    }
+
+    var user_ids = [];
+    var line_ids = [];
+
+    var query = Line.find({ employer_id: emp_id }).where({ status: "inline" }).sort({ updated_by: -1 });
+
+    return query.exec(function (err, lines) {
+        if (err)
+            return res.send(err);
+
+        user_ids = lines.map(line => line.user_id);
+        line_ids = lines.map(line => line._id);
+    }).then(function () {
+        User.find({ _id: user_ids })
+            .lean()
+            //lean() is used so that we get a plain object back that we can modify before sending to the client.
+            //In this case we want to add the line_id
+            .exec(function (err, users) {
+
             if (err)
                 return res.send(err);
 
-            user_ids = lines.map(line => line.user_id);
-            line_ids = lines.map(line => line._id);
-        }).then(function () {
-            User.find({ _id: user_ids })
-                .lean()
-                //lean() is used so that we get a plain object back that we can modify before sending to the client.
-                //In this case we want to add the line_id
-                .exec(function (err, users) {
-
-                if (err)
-                    return res.send(err);
-
-                //We don't know what order the users are returned in,
-                //but we need to match them to the corresponding line_ids.
-                //Batch size is small, so just do simple search to retrieve matching line_id.
-                //Add line_id field to the json object for each user.
-                for (var i = 0; i < users.length; i++) {
-                    for (var j = 0; j < users.length; j++) {
-                        if (users[i]._id.toString() === user_ids[j].toString()) {
-                            users[i].line_id = line_ids[j];
-                        }
+            //We don't know what order the users are returned in,
+            //but we need to match them to the corresponding line_ids.
+            //Batch size is small, so just do simple search to retrieve matching line_id.
+            //Add line_id field to the json object for each user.
+            for (var i = 0; i < users.length; i++) {
+                for (var j = 0; j < users.length; j++) {
+                    if (users[i]._id.toString() === user_ids[j].toString()) {
+                        users[i].line_id = line_ids[j];
                     }
                 }
+            }
 
-                res.status(200).json({
-                    "users": users
-                })
-            });
-        })
-    }
+            return res.status(200).json({
+                "users": users
+            })
+        });
+    })
 }
+
+/*//get /lines/auth/users
+function getUsersByAuthEmployerId(req, res) {
+    if (req.user.user_type !== 'recruiter') {
+        return res.status(401).json({
+            "message": response.onlyRecruiters
+        });
+    }
+
+    return getUsersByEmployerId(req, res, req.user.employer_id);
+}*/
 
 // patch /lines/:id/status
 // currently, only the status field is mutable this way
