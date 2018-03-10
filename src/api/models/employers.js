@@ -2,6 +2,21 @@ import mongoose from 'mongoose'
 
 const EMPLOYER_LIMIT = 900000;
 
+var employerProfileSchema = new mongoose.Schema({
+    info: {
+        type: String
+    },
+    links: {
+        type: [String]
+    },
+    location: {
+        type: [Number]
+    },
+    attendance_date: {
+        type: Date
+    },
+});
+
 var employerSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -9,9 +24,8 @@ var employerSchema = new mongoose.Schema({
         required: true,
         index: true
     },
-    data: {
-        type: Object,
-        default: {}
+    profile: {
+        type: employerProfileSchema
     },
     passcode: {
         type: Number,

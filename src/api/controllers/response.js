@@ -34,7 +34,7 @@ let messages =  {
     // getEmployersMissingNameQuery: "InputError: Missing name parameter in query",
     postEmployersMissingNameBody: "InputError: Missing name parameter in body",
     postEmployersQRMissingValueBody: "InputError: Missing value parameter in body",
-    patchEmployersMissingDataBody: "InputError: Missing data in body",
+    patchEmployersMissingDataBody: "InputError: Missing profile fields in body",
 
     // QR
     getQRNotFound: "NotFound: no QR found for your input",
