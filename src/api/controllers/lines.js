@@ -270,16 +270,18 @@ function getUsersByEmployerId(req, res) {
     }
 
     var user_ids = [];
-    var line_ids = [];
-
+    var userIdsToLineIds = {};
     var query = Line.find({ employer_id: emp_id }).where({ status: "inline" }).sort({ updated_by: -1 });
 
     return query.exec(function (err, lines) {
         if (err)
             return res.send(err);
-
-        user_ids = lines.map(line => line.user_id);
-        line_ids = lines.map(line => line._id);
+        
+        lines.forEach(function(line) {
+            user_ids.push(line.user_id);
+            userIdsToLineIds[line.user_id] = line._id;
+        });
+        
     }).then(function () {
         User.find({ _id: user_ids })
             .lean()
@@ -292,14 +294,8 @@ function getUsersByEmployerId(req, res) {
 
             //We don't know what order the users are returned in,
             //but we need to match them to the corresponding line_ids.
-            //Batch size is small, so just do simple search to retrieve matching line_id.
-            //Add line_id field to the json object for each user.
             for (var i = 0; i < users.length; i++) {
-                for (var j = 0; j < users.length; j++) {
-                    if (users[i]._id.toString() === user_ids[j].toString()) {
-                        users[i].line_id = line_ids[j];
-                    }
-                }
+                users[i].line_id = userIdsToLineIds[users[i]._id];
             }
 
             return res.status(200).json({
