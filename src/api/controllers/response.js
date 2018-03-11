@@ -21,6 +21,7 @@ let messages =  {
     // users
     getUsersOnlyAdmin: "UnauthorizedError: Only available to admin",
     patchUsersMissingDataBody: "InputError: Missing data in body",
+    profileNoAdmins: "UnauthorizedError: Admins don't have profiles",
 
     // lines
     postLinesAlreadyExists: "UniqueError: Line for this user already exists",

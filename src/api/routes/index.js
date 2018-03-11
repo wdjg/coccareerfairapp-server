@@ -21,7 +21,7 @@ router.post('/login', authController.login);
 // users
 router.get('/users', auth, userController.getUsers);
 router.get('/users/auth', auth, userController.getUserByAuthUser);
-router.patch('/users/auth/data', auth, userController.patchUserDataByAuthUser);
+router.patch('/users/auth/profile', auth, userController.patchProfileByAuthUser);
 router.get('/users/:id', auth, userController.getUserById);
 
 // lines

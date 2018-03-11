@@ -1,5 +1,6 @@
 import mongoose from 'mongoose'
-const User = mongoose.model('User');
+import { User, Student, Recruiter } from '../models/users.js'
+
 const Line = mongoose.model('Line');
 
 import response from './response.js'
@@ -45,24 +46,57 @@ function getUserById(req, res) {
 
 }
 
-//patch /users/auth/data
-function patchUserDataByAuthUser(req, res) {
+//patch /users/auth/profile
+//you can only modify your own profile.
+function patchProfileByAuthUser(req, res) {
 
-    if (!req.body.data) {
-        res.status(400).json({
-            "message": response.patchUsersMissingDataBody
-        });
-    } else {
-        User.findById(req.user._id).exec(function (err, user){
-            user.data = req.body.data;
-            user.save( function(err, user) {
-                if (err)
-                    return res.send(err);
-                res.status(200).json(user);
+    if (req.user.user_type === 'student') {
+
+        try {
+            return Student.findOneAndUpdate(
+                { _id: req.user._id }, req.body, {new: true})
+                .exec(function(err, student) {
+
+                if (err) {
+                    return res.status(500).json({
+                        "message": err
+                    });
+                }
+
+                return res.status(200).json(student);
             });
-        })
-    }
+        } catch (err) {
+            return res.status(500).json({
+                "message": err
+            });
+        }
+        
+    } else if (req.user.user_type === 'recruiter') {
 
+        try {
+            return Recruiter.findOneAndUpdate(
+                { _id: req.user._id }, req.body, {new: true})
+                .exec(function(err, recruiter) {
+
+                if (err) {
+                    return res.status(500).json({
+                        "message": err
+                    });
+                }
+
+                return res.status(200).json(recruiter);
+            });
+        } catch (err) {
+            return res.status(500).json({
+                "message": err
+            });
+        }
+
+    } else {
+        return res.status(401).json({
+            "message": response.profileNoAdmins
+        });
+    }
 }
 
-export default { getUsers, getUserByAuthUser, getUserById, patchUserDataByAuthUser } 
+export default { getUsers, getUserByAuthUser, getUserById, patchProfileByAuthUser } 

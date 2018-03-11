@@ -26,10 +26,6 @@ var userSchema = new Schema({
         type: String,
         select: false
     },
-    data: {
-        type: Object,
-        default: {}
-    },
     created_by: {
         type: Date,
         default: Date.now
@@ -69,6 +65,39 @@ var userSchema = new Schema({
         }, 'If user_type is recruiter, need correct company passcode'],
         default: null
     }
+}, { 
+    discriminatorKey: 'user_type' 
+});
+
+var studentProfileSchema = new Schema({
+    major: {
+        type: String
+    },
+    gpa: {
+        type: Number
+    },
+    bio: {
+        type: String
+    },
+    grad_date: {
+        type: String //let users customize how they want to display it.
+    },
+    links: {
+        type: [String] //array
+    }
+}, {
+    discriminatorKey: 'user_type'
+});
+
+var recruiterProfileSchema = new Schema({
+    bio: {
+        type: String
+    },
+    job_title: {
+        type: String
+    }
+}, {
+    discriminatorKey: 'user_type'
 });
 
 userSchema.plugin(idvalidator);
@@ -108,4 +137,8 @@ userSchema.methods.generateJwt = function () {
 
 };
 
-module.exports = mongoose.model('User', userSchema);
+var User = mongoose.model('User', userSchema);
+var Student = User.discriminator('student', studentProfileSchema);
+var Recruiter = User.discriminator('recruiter', recruiterProfileSchema);
+
+module.exports = { User, Student, Recruiter };
