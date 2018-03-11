@@ -6,6 +6,8 @@ import MongooseValidator from 'mongoose-validatorjs'
 const Schema = mongoose.Schema;
 const Employer = mongoose.model('Employer');
 
+var options = { discriminatorKey: 'user_type' };
+
 var userSchema = new Schema({
     name: {
         type: String,
@@ -30,46 +32,9 @@ var userSchema = new Schema({
         type: Date,
         default: Date.now
     },
-    user_type: {
-        type: String,
-        enum: ['student', 'recruiter', 'admin'],
-        default: 'student',
-        index: true,
+}, options);
 
-        /* If user_type is left blank, the custom validator will not execute.
-           So, require user_type to be specified if emp_id is not null,
-           so we can verify that user_type is recruiter. */
-        required: [function() {
-            return this.employer_id !== undefined;
-        }, 'If company passcode is specified, user_type must be recruiter'],
-
-        validator: function(v, cb) {
-            if (v === 'recruiter') {
-                Employer.findById(this.employer_id).exec( function (err, employer){
-                    if (err || !employer) {
-                        cb(false, 'UserValidationError: Invalid employer_id');
-                    } else {
-                        cb(true);
-                    }
-                })
-            } else {
-                cb(this.employer_id === undefined);
-            }
-        }
-    },
-    employer_id: {
-        type: Schema.Types.ObjectId,
-        ref: 'Employer',
-        required: [function() {
-            return this.user_type === 'recruiter';
-        }, 'If user_type is recruiter, need correct company passcode'],
-        default: null
-    }
-}, { 
-    discriminatorKey: 'user_type' 
-});
-
-var studentProfileSchema = new Schema({
+var studentSchema = new Schema({
     major: {
         type: String
     },
@@ -85,20 +50,25 @@ var studentProfileSchema = new Schema({
     links: {
         type: [String] //array
     }
-}, {
-    discriminatorKey: 'user_type'
-});
+}, options);
 
-var recruiterProfileSchema = new Schema({
+var recruiterSchema = new Schema({
+    employer_id: {
+        type: Schema.Types.ObjectId,
+        ref: 'Employer',
+        required: true
+    },
     bio: {
         type: String
     },
     job_title: {
         type: String
     }
-}, {
-    discriminatorKey: 'user_type'
-});
+}, options);
+
+var adminSchema = new Schema({
+    // this only exists so that user_type 'admin' can be a thing.
+}, options);
 
 userSchema.plugin(idvalidator);
 
@@ -138,7 +108,8 @@ userSchema.methods.generateJwt = function () {
 };
 
 var User = mongoose.model('User', userSchema);
-var Student = User.discriminator('student', studentProfileSchema);
-var Recruiter = User.discriminator('recruiter', recruiterProfileSchema);
+var Student = User.discriminator('student', studentSchema);
+var Recruiter = User.discriminator('recruiter', recruiterSchema);
+var Admin = User.discriminator('admin', adminSchema);
 
-module.exports = { User, Student, Recruiter };
+module.exports = { User, Student, Recruiter, Admin};

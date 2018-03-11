@@ -7,6 +7,7 @@ let messages =  {
     authRegisterMissingFields: "RegisterError: Need name, email, and password",
     authRegisterNoEmployerFound: "RegisterError: No employer found with that passcode",
     authRegisterWithEmpIdNotAllowed: "RegisterError: Passing in employer_id is not allowed. Use company passcode",
+    authRegisterRecruiterNoPasscode: "RegisterError: If recruiter, must pass in company passcode",
     authLoginMissingFields: "LoginError: Need email and password fields",
     authLoginNoUserFound: "LoginError: No user found for email",
     authLoginInvalid: "LoginError: Invalid email password combination",

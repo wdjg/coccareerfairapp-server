@@ -1,7 +1,7 @@
 import passport from 'passport'
 import mongoose from 'mongoose'
 import response from './response.js'
-const User = mongoose.model('User');
+import { User, Student, Recruiter, Admin } from '../models/users.js'
 const Employer = mongoose.model('Employer');
 
 function sendJSONresponse(res, status, content) {
@@ -29,19 +29,38 @@ function register(req, res) {
                 "message": response.userAlreadyExists
             })
         } else {
-            // user not found, make new one.
-            var user = new User();
+            // user not found, make new one
+            // set user_type, default is 'student'
+            var user_type = (req.body.user_type === undefined) ? 'student' : req.body.user_type;
+            var user;
+            switch (user_type) {
+                case 'student':
+                    user = new Student();
+                    break;
+                case 'recruiter':
+                    user = new Recruiter();
+                    break;
+                case 'admin':
+                    user = new Admin();
+                    break;
+                default:
+                    user = new User();
+                    break;
+            }
 
             user.name = req.body.name;
             user.email = req.body.email;
 
             user.setPassword(req.body.password);
 
-            //need to enforce default here since jwt builds off of this.
-            user.user_type = (req.body.user_type === undefined) ? 'student' : req.body.user_type;
-
-            //check if they're trying to register at a specific company
-            if (req.body.passcode) {
+            if (user_type === 'recruiter') {
+                // if they're recruiter check if passcode exists
+                if (!req.body.passcode) {
+                    return sendJSONresponse(res, 400, {
+                        "message": response.authRegisterRecruiterNoPasscode
+                    }); 
+                }
+                // query for passcode
                 try {
                     let emp_query = Employer.findOne({passcode: req.body.passcode});
                     var found_emp = await emp_query.exec();
@@ -61,7 +80,7 @@ function register(req, res) {
                     });
                 }
             } else {
-                //no passcode specified, they're just a student. go ahead and save
+                // admin or student
                 return saveUser(res, user);
             }
         }
