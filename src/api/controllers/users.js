@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-import { User, Student, Recruiter } from '../models/users.js'
+import { User, Student, Recruiter, Admin} from '../models/users.js'
 
 const Line = mongoose.model('Line');
 
@@ -26,7 +26,7 @@ function getUsers(req, res) {
 
 // get /users/auth
 function getUserByAuthUser(req, res) {
-
+    
     User.findById(req.user._id).exec(function (err, user) {
         if (err)
             return res.send(err);
