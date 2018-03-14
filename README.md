@@ -1,5 +1,5 @@
 # CoC Career Fair App
-[![Run in Postman](https://run.pstmn.io/button.svg)](https://www.getpostman.com/collections/8e36319eb404a47c7dee)
+[![Run in Postman](https://run.pstmn.io/button.svg)](https://www.getpostman.com/collections/9c7004b490f65bc97dd5)
 
 #### Junior Design 7359
 Brian Wang
