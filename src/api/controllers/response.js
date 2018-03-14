@@ -43,7 +43,9 @@ let messages =  {
     getQRMissingQuery: "InputError: Missing employer_id or qr_code_value as a query parameter in url",
 
     // misc
-    success: "Success"
+    success: "Success",
+    deleteSuccess: (num) => "Success: Deleted " + num + " element(s)", //assumes num > 0
+    deleteNotFound: "NotFound: Queried item(s) don't exist"
 
 }
 
