@@ -49,6 +49,15 @@ var studentSchema = new Schema({
     },
     links: {
         type: [String] //array
+    },
+    threads: {
+        type: String
+    },
+    positions_desired: {
+        type: String
+    },
+    locations_desired: {
+        type: [String]
     }
 }, options);
 

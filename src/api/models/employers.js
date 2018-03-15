@@ -9,12 +9,26 @@ var employerProfileSchema = new mongoose.Schema({
     links: {
         type: [String]
     },
-    location: {
-        type: [Number]
+    locations: {
+        type: [String]
     },
     attendance_date: {
         type: Date
     },
+    map_coordinates: {
+        latitude: {
+            type: Number
+        },
+        longitude: {
+            type: Number
+        },
+        floor: {
+            type: Number
+        }
+    },
+    positions_offered: {
+        type: String
+    }
 });
 
 var employerSchema = new mongoose.Schema({
