@@ -3,11 +3,13 @@ let messages =  {
     unauthorized: "UnauthorizedError: Need to be logged in",
 
     // authentication
+    authRegisterSuccess: (user) => "Successfully registered " + user.name + " as type " + user.user_type,
     userAlreadyExists: "RegisterError: User already exists!",
     authRegisterMissingFields: "RegisterError: Need name, email, and password",
     authRegisterNoEmployerFound: "RegisterError: No employer found with that passcode",
     authRegisterWithEmpIdNotAllowed: "RegisterError: Passing in employer_id is not allowed. Use company passcode",
     authRegisterRecruiterNoPasscode: "RegisterError: If recruiter, must pass in company passcode",
+    authRegisterBadType: "RegisterError: Invalid user_type",
     authLoginMissingFields: "LoginError: Need email and password fields",
     authLoginNoUserFound: "LoginError: No user found for email",
     authLoginInvalid: "LoginError: Invalid email password combination",
