@@ -41,7 +41,10 @@ function register(req, res) {
                     user = new Recruiter();
                     break;
                 case 'admin':
-                    user = new Admin();
+                    return res.status(403).json({
+                        "message": response.authRegisterNoAdmins
+                    });
+                    //user = new Admin();
                     break;
                 default:
                     user = new User();
