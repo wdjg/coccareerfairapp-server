@@ -121,12 +121,20 @@ function updateLine(req, res) {
 // delete /lines/:id
 function deleteLine(req, res) {
 
-    Line.remove({_id: req.params.id}).exec(function (err, line) {
+    Line.remove({_id: req.params.id}).exec(function (err, removedInfo) {
         if (err)
             return res.send(err);
-        res.status(200).json({
-            "message": response.success
-        })
+        let numRemoved = removedInfo.result.n; //remove() returns a promise with some info, but not a line itself
+        if (numRemoved > 0) {
+            return res.status(200).json({
+                "message": response.deleteSuccess(numRemoved)
+            });
+        } else {
+            return res.status(404).json({
+                "message": response.deleteNotFound
+            });
+        }
+
     })
 
 }
