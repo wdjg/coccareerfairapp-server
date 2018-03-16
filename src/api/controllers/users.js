@@ -99,4 +99,26 @@ function patchProfileByAuthUser(req, res) {
     }
 }
 
-export default { getUsers, getUserByAuthUser, getUserById, patchProfileByAuthUser } 
+// GET /users/auth/favorites
+// student only
+function getFavoritesByAuthUser(req, res) {
+    if (req.user.user_type !== 'student') {
+        return res.status(403).json({
+            "message": response.onlyStudent
+        });
+    } else {
+        try {
+            User.findById(req.user._id).populate('favorites').exec(function(err, user) {
+                return res.status(200).json({
+                    "favorites": user.favorites
+                });
+            });
+        } catch (err) {
+            return res.status(500).json({
+                "message": err
+            });
+        }
+    }
+}
+
+export default { getUsers, getUserByAuthUser, getUserById, patchProfileByAuthUser, getFavoritesByAuthUser } 
