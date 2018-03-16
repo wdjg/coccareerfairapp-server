@@ -44,7 +44,10 @@ function register(req, res) {
                     user = new Admin();
                     break;
                 default:
-                    user = new User();
+                    return res.status(400).json({
+                        "message": response.authRegisterBadType
+                    });
+                    //user = new User();
                     break;
             }
 
@@ -95,7 +98,8 @@ function saveUser(res, user) {
             token = user.generateJwt();
             res.status(200);
             return res.json({
-                "token": token
+                "token": token,
+                "message": response.authRegisterSuccess(user)
             });
         } else {
             console.log(err);
