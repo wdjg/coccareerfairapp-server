@@ -24,6 +24,7 @@ router.get('/users/auth', auth, userController.getUserByAuthUser);
 router.patch('/users/auth/profile', auth, userController.patchProfileByAuthUser);
 router.get('/users/:id', auth, userController.getUserById);
 router.get('/users/auth/favorites', auth, userController.getFavoritesByAuthUser);
+router.patch('/users/auth/favorites', auth, userController.patchFavoritesByAuthUser);
 
 // lines
 router.get('/lines/auth', auth, lineController.getLineByAuthUser);
