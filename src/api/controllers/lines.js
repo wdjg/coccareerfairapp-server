@@ -4,6 +4,26 @@ const Line = mongoose.model('Line');
 
 import response from './response.js';
 
+
+// get /lines
+// default sorted by most recent.
+// ADMIN ONLY
+function getLinesBySearch(req, res) {
+    if (req.user.user_type !== 'admin') {
+        res.status(401).json({
+            "message": response.onlyAdmins
+        });
+    } else {
+        Line.find(req.query).sort({updated_by: -1}).exec(function (err, lines){
+            if (err)
+                return res.send(err);
+            res.status(200).json({
+                "lines": lines
+            });
+        });
+    }
+}
+
 // get /lines/auth
 function getLineByAuthUser(req, res) {
     Line.find( { user_id: req.user._id } ).exec(function (err, lines) {
@@ -14,8 +34,6 @@ function getLineByAuthUser(req, res) {
         });
     });
 }
-
-
 
 // get /lines/:id
 function getLineById(req, res) {
@@ -352,4 +370,4 @@ function updateLineStatus(req, res) {
     
 }
 
-export default { getLineByAuthUser, getLineById, createLine, updateLine, deleteLine, getStatsByEmployerId, getStatsByEmployerIdNoAuth, getUsersByEmployerId, updateLineStatus }
+export default { getLinesBySearch, getLineByAuthUser, getLineById, createLine, updateLine, deleteLine, getStatsByEmployerId, getStatsByEmployerIdNoAuth, getUsersByEmployerId, updateLineStatus }

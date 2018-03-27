@@ -25,6 +25,7 @@ router.patch('/users/auth/profile', auth, userController.patchProfileByAuthUser)
 router.get('/users/:id', auth, userController.getUserById);
 
 // lines
+router.get('/lines', auth, lineController.getLinesBySearch); // ADMIN ONLY
 router.get('/lines/auth', auth, lineController.getLineByAuthUser);
 router.get('/lines/auth/stats', auth, lineController.getStatsByEmployerId);
 router.get('/lines/stats', lineController.getStatsByEmployerIdNoAuth); // UNAUTHENTICATED
