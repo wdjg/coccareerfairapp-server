@@ -104,7 +104,7 @@ async function skipAhead(line) {
         } else {
             // active batch is already full. Just return, skipAhead's check is done.
             return line;
-        } 
+        }
     } catch (err) {
         console.log('skipAhead: An error occurred');
         return Promise.reject("skipAhead: An error occurred: " + err);
@@ -192,7 +192,7 @@ function getStatsByEmployerIdNoAuth(req, res) {
     }
 
     var size = getSizeByEmployerId(req.query.employer_id);
-    
+
     //obviously Promise.all is overkill for only 1 statistic, but we plan to add more later anyway.
     Promise.all([size]).then(function(values) {
         //console.log('size = ' + values[0]); //debug
@@ -282,7 +282,7 @@ function getUsersByEmployerId(req, res) {
         return res.status(401).json({
             "message": response.notStudent
         });
-    } 
+    }
 
     let emp_id;
     if (req.user.user_type === 'recruiter') {
@@ -302,12 +302,12 @@ function getUsersByEmployerId(req, res) {
     return query.exec(function (err, lines) {
         if (err)
             return res.send(err);
-        
+
         lines.forEach(function(line) {
             user_ids.push(line.user_id);
             userIdsToLineIds[line.user_id] = line._id;
         });
-        
+
     }).then(function () {
         User.find({ _id: user_ids })
             .lean()
@@ -345,29 +345,36 @@ function getUsersByAuthEmployerId(req, res) {
 // patch /lines/:id/status
 // currently, only the status field is mutable this way
 function updateLineStatus(req, res) {
-
+    if (((req.body.status === 'startrecruiter') || (req.body.status === 'finishrecruiter')) && ((req.user.user_type !== 'recruiter') && (req.user.user_type !== 'admin'))) {
+        return res.status(401).json({
+            "message": response.onlyRecAdmins
+        });
+    } else if (((req.body.status === 'preline') || (req.body.status === 'inline')) && (req.user.user_type !== 'student')) {
+        return res.status(401).json({
+            "message": response.onlyStudent
+        });
+    }
     Line.findById({_id: req.params.id}).exec(async function (err, line) {
         if (err)
             return res.send(err);
         if (!line) {
-            res.status(400).json({
+            return res.status(400).json({
                 "message": "No line found for parameter :id + " + req.params.id
             });
-        } else {
-            try {
-                var msg = await line.updateStatus(req.body.status);
-                res.status(200).json({
-                      "message": "Successfully updated line with status " + req.body.status
-                });
-            } catch (err) {
-                console.log(err);
-                res.status(400).json({
-                    "message": err
-                });
-            }
+        }
+        try {
+            var msg = await line.updateStatus(req.body.status);
+            return res.status(200).json({
+                "message": "Successfully updated line with status " + req.body.status
+            });
+        } catch (err) {
+            console.log(err);
+            return res.status(400).json({
+                "message": err
+            });
         }
     });
-    
+
 }
 
 export default { getLinesBySearch, getLineByAuthUser, getLineById, createLine, updateLine, deleteLine, getStatsByEmployerId, getStatsByEmployerIdNoAuth, getUsersByEmployerId, updateLineStatus }

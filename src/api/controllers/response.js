@@ -20,6 +20,7 @@ let messages =  {
     onlyRecruiters: "UnauthorizedError: Only available to recruiters",
     notRecruiters: "UnauthorizedError: Not available to recruiters",
     onlyAdmins: "UnauthorizedError: Only available to admins",
+    onlyRecAdmins: "UnauthorizedError: Only available to recruiters or admins",
 
     // users
     getUsersOnlyAdmin: "UnauthorizedError: Only available to admin",
