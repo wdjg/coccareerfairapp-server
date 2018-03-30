@@ -58,7 +58,11 @@ var studentSchema = new Schema({
     },
     locations_desired: {
         type: [String]
-    }
+    },
+    favorites: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Employer'
+    }]
 }, options);
 
 var recruiterSchema = new Schema({
@@ -80,6 +84,8 @@ var adminSchema = new Schema({
 }, options);
 
 userSchema.plugin(idvalidator);
+studentSchema.plugin(idvalidator);
+recruiterSchema.plugin(idvalidator);
 
 userSchema.methods.setPassword = function (password) {
     this.salt = crypto.randomBytes(16).toString('hex');

@@ -99,4 +99,78 @@ function patchProfileByAuthUser(req, res) {
     }
 }
 
-export default { getUsers, getUserByAuthUser, getUserById, patchProfileByAuthUser } 
+// GET /users/auth/favorites
+// student only
+function getFavoritesByAuthUser(req, res) {
+    if (req.user.user_type !== 'student') {
+        return res.status(403).json({
+            "message": response.onlyStudent
+        });
+    } else {
+        User.findById(req.user._id).populate('favorites').exec(function(err, user) {
+            if (err) {
+                return res.status(500).json({
+                    "message": err
+                });
+            }
+
+            return res.status(200).json({
+                "favorites": user.favorites
+            });
+        });
+    }
+}
+
+// PATCH /users/auth/favorites
+// student only
+// client passes in an objectID of an employer to toggle, receives back the updated list of favorites
+function patchFavoritesByAuthUser(req, res) {
+    if (req.user.user_type !== 'student') {
+        return res.status(403).json({
+            "message": response.onlyStudent
+        });
+    } else {
+        User.findById(req.user._id).exec(async function(err, user) {
+        //User.findById(req.user._id).populate('favorites').exec(async function(err, user) {
+            /*return res.status(200).json({
+                "favorites": user.favorites
+            });*/
+            if (err) {
+                return res.status(500).json({
+                    "message": err
+                });
+            }
+
+            var toggleId = req.body.employer_id;
+            var toggleIdIsFavorite = user.favorites.some(emp_id => {
+                return emp_id.equals(toggleId);
+            });
+
+            if (toggleIdIsFavorite) {
+                //remove it
+                user.favorites = user.favorites.filter(emp_id => {
+                    return !(emp_id.equals(toggleId));
+                });
+            } else {
+                //add it
+                user.favorites.push(toggleId);
+            }
+
+            //save the user to DB
+            try {
+                var savedUser = await user.save();
+            } catch (err) {
+                return res.status(500).json({
+                    "message": err
+                });
+            }
+
+            return res.status(200).json({
+                "favorites": savedUser.favorites
+            });
+
+        })
+    }
+}
+
+export default { getUsers, getUserByAuthUser, getUserById, patchProfileByAuthUser, getFavoritesByAuthUser, patchFavoritesByAuthUser } 
