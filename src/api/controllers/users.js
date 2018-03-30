@@ -107,17 +107,17 @@ function getFavoritesByAuthUser(req, res) {
             "message": response.onlyStudent
         });
     } else {
-        try {
-            User.findById(req.user._id).populate('favorites').exec(function(err, user) {
-                return res.status(200).json({
-                    "favorites": user.favorites
+        User.findById(req.user._id).populate('favorites').exec(function(err, user) {
+            if (err) {
+                return res.status(500).json({
+                    "message": err
                 });
+            }
+
+            return res.status(200).json({
+                "favorites": user.favorites
             });
-        } catch (err) {
-            return res.status(500).json({
-                "message": err
-            });
-        }
+        });
     }
 }
 
@@ -130,46 +130,46 @@ function patchFavoritesByAuthUser(req, res) {
             "message": response.onlyStudent
         });
     } else {
-        try {
-            User.findById(req.user._id).exec(async function(err, user) {
-            //User.findById(req.user._id).populate('favorites').exec(async function(err, user) {
-                /*return res.status(200).json({
-                    "favorites": user.favorites
-                });*/
-                var toggleId = req.body.employer_id;
-                var toggleIdIsFavorite = user.favorites.some(emp_id => {
-                    return emp_id.equals(toggleId);
+        User.findById(req.user._id).exec(async function(err, user) {
+        //User.findById(req.user._id).populate('favorites').exec(async function(err, user) {
+            /*return res.status(200).json({
+                "favorites": user.favorites
+            });*/
+            if (err) {
+                return res.status(500).json({
+                    "message": err
                 });
+            }
 
-                if (toggleIdIsFavorite) {
-                    //remove it
-                    user.favorites = user.favorites.filter(emp_id => {
-                        return !(emp_id.equals(toggleId));
-                    });
-                } else {
-                    //add it
-                    user.favorites.push(toggleId);
-                }
-
-                //save the user to DB
-                try {
-                    var savedUser = await user.save();
-                } catch (err) {
-                    return res.status(500).json({
-                        "message": err
-                    });
-                }
-
-                return res.status(200).json({
-                    "favorites": savedUser.favorites
-                });
-
-            })
-        } catch (err) {
-            return res.status(500).json({
-                "message": err
+            var toggleId = req.body.employer_id;
+            var toggleIdIsFavorite = user.favorites.some(emp_id => {
+                return emp_id.equals(toggleId);
             });
-        }
+
+            if (toggleIdIsFavorite) {
+                //remove it
+                user.favorites = user.favorites.filter(emp_id => {
+                    return !(emp_id.equals(toggleId));
+                });
+            } else {
+                //add it
+                user.favorites.push(toggleId);
+            }
+
+            //save the user to DB
+            try {
+                var savedUser = await user.save();
+            } catch (err) {
+                return res.status(500).json({
+                    "message": err
+                });
+            }
+
+            return res.status(200).json({
+                "favorites": savedUser.favorites
+            });
+
+        })
     }
 }
 
