@@ -4,19 +4,14 @@ import response from './response.js'
 import { User, Student, Recruiter, Admin } from '../models/users.js'
 const Employer = mongoose.model('Employer');
 
-function sendJSONresponse(res, status, content) {
-    res.status(status);
-    res.json(content);
-}
-
 function register(req, res) {
     if(!req.body.name || !req.body.email || !req.body.password) {
-      sendJSONresponse(res, 400, {
-        "message": response.authRegisterMissingFields 
+      return res.status(400).json({
+          "message": response.authRegisterMissingFields
       });
       return;
     } else if (req.body.employer_id) {
-        sendJSONresponse(res, 400, {
+        return res.status(400).json({
             "message": response.authRegisterWithEmpIdNotAllowed
         });
       return;
@@ -25,9 +20,9 @@ function register(req, res) {
     User.findOne({email: req.body.email}).exec(async function(err, user) {
         // if user is found, already exists
         if(user) {
-            sendJSONresponse(res, 400, {
+            return res.status(400).json({
                 "message": response.userAlreadyExists
-            })
+            });
         } else {
             // user not found, make new one
             // set user_type, default is 'student'
@@ -59,9 +54,9 @@ function register(req, res) {
             if (user_type === 'recruiter') {
                 // if they're recruiter check if passcode exists
                 if (!req.body.passcode) {
-                    return sendJSONresponse(res, 400, {
+                    return res.status(400).json({
                         "message": response.authRegisterRecruiterNoPasscode
-                    }); 
+                    });
                 }
                 // query for passcode
                 try {
@@ -69,7 +64,7 @@ function register(req, res) {
                     var found_emp = await emp_query.exec();
                 } catch (err) {
                     console.log(err);
-                    return sendJSONresponse(res, 400, {
+                    return res.status(400).json({
                         "message": err
                     });
                 }
@@ -78,7 +73,7 @@ function register(req, res) {
                     user.employer_id = found_emp._id;
                     return saveUser(res, user);
                 } else {
-                    return sendJSONresponse(res, 404, {
+                    return res.status(404).json({
                         "message": response.authRegisterNoEmployerFound
                     });
                 }
@@ -103,9 +98,9 @@ function saveUser(res, user) {
             });
         } else {
             console.log(err);
-            return sendJSONresponse(res, 400, {
+            return res.status(400).json({
                 "message": err
-            })
+            });
         }
     });
 }
@@ -113,8 +108,8 @@ function saveUser(res, user) {
 function login(req, res) {
 
     if(!req.body.email || !req.body.password) {
-      sendJSONresponse(res, 400, {
-        "message": response.authLoginMissingFields
+      return res.status(400).json({
+          "message": response.authLoginMissingFields
       });
       return;
     }
