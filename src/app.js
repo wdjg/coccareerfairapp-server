@@ -10,6 +10,9 @@ import passport from 'passport'
 // async await with babel
 import "regenerator-runtime/runtime"
 
+// DotENV, automatically loads environment variables from .env folder in the root of this project. If there does not exist one, create one with each key-value pair like NODE_ENV=local in each line.
+require('dotenv').config();
+
 // [SH] Bring in the data model
 require('./api/models/db');
 // [SH] Bring in the Passport config after model is defined
