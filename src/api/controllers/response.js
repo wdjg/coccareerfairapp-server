@@ -1,6 +1,6 @@
 // This file is strictly for response message strings
 let messages =  {
-    unauthorized: "UnauthorizedError: Need to be logged in",
+    unauthorized: "UnauthorizedError: No authorization token was found",
 
     // authentication
     authRegisterSuccess: (user) => "Successfully registered " + user.name + " as type " + user.user_type,
