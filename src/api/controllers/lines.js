@@ -1,6 +1,10 @@
 import mongoose from 'mongoose'
 const User = mongoose.model('User');
 const Line = mongoose.model('Line');
+const LineEvent = mongoose.model('LineEvent');
+
+const MS_IN_ONE_DAY = 86400000;
+const MS_IN_ONE_MIN = 60000;
 
 import response from './response.js';
 
@@ -169,12 +173,14 @@ function getStatsByEmployerId(req, res) {
     //use promises to have queries run async. in parallel.
     var size = getSizeByEmployerId(req.query.employer_id)
     var currentPlace = getMyPlaceByEmployerId(req.user._id, req.query.employer_id)
+    var avgWait = getAverageWaitTimeByEmployerId(req.query.employer_id)
 
-    Promise.all([size, currentPlace]).then(function(values) {
+    Promise.all([size, currentPlace, avgWait]).then(function(values) {
         //console.log('size = ' + values[0] + ', myPlace = ' + values[1]); //debug
         res.status(200).json({
             "size": values[0],
-            "myPlace": values[1]
+            "myPlace": values[1],
+            "averageWaitMinutes": values[2]
         });
     }).catch ( function(err) {
         res.send(err);
@@ -192,12 +198,13 @@ function getStatsByEmployerIdNoAuth(req, res) {
     }
 
     var size = getSizeByEmployerId(req.query.employer_id);
-
-    //obviously Promise.all is overkill for only 1 statistic, but we plan to add more later anyway.
-    Promise.all([size]).then(function(values) {
+    var avgWait = getAverageWaitTimeByEmployerId(req.query.employer_id);
+    
+    Promise.all([size, avgWait]).then(function(values) {
         //console.log('size = ' + values[0]); //debug
         res.status(200).json({
-            "size": values[0]
+            "size": values[0],
+            "averageWaitMinutes": values[1]
         });
     }).catch ( function(err) {
         res.send(err);
@@ -268,6 +275,73 @@ function getMyPlaceByEmployerId(user_id, employer_id) {
                 return -1; //line exists, but you don't have a status that can really be considered in line.
                 break;
         }
+    });
+}
+
+//helper: given employer_id, calculates the average wait time that has happened so far. 
+//returns time in # of minutes (rounded up).
+function getAverageWaitTimeByEmployerId(emp_id) {
+    //get all line events for this employer from the past 24 hours.
+    //sort them by user_id, then by time of event.
+    var yesterday = new Date() - MS_IN_ONE_DAY;
+
+    var todaysEvents = LineEvent.find({ employer_id: emp_id,
+                                        created_by: {$gt: yesterday}})
+                                        .sort({ user_id: -1, created_by: -1})
+                                        .exec();
+
+    return todaysEvents.then(function (lineEvents) {
+        //make a pass through that checks for corresponding startrecruiter/preline events from the same user_id.
+        var SRTimeMap = {};
+        var PLTimeMap = {};
+
+        for (var i = 0; i < lineEvents.length; i++) {
+            let thisEvent = lineEvents[i];
+            //console.log("checking out event: " + thisEvent); //debug
+            if (thisEvent.status === 'startrecruiter') {
+                if (!(thisEvent.user_id in SRTimeMap)) { //not sure if this check is actually necessary
+                    SRTimeMap[thisEvent.user_id] = thisEvent.created_by;
+                }
+                continue;
+            } else if (thisEvent.status === 'preline') {
+                //array should be sorted in descending time order, so make sure there's a corresponding SR entry.
+                if (thisEvent.user_id in SRTimeMap) {
+                    //make sure there isn't a PL entry - if there is, then this is an older event when they entered the line,
+                    //but subsequently left (for whatever reason), which we want to ignore.
+                    if (!(thisEvent.user_id in PLTimeMap)) {
+                        PLTimeMap[thisEvent.user_id] = thisEvent.created_by;
+                    }
+                }
+            }
+        }
+
+        //now, iterate through PLTimeMap (if a uID is here, it's also in SRTimeMap).
+        //subtract preline time from startrecruiter time for each user_id.
+        //keep a rolling sum & count of wait times.
+        var count = 0;
+        var totalWaitInMS = 0;
+
+        for (var userID in PLTimeMap) {
+            count++;
+            let userWait = SRTimeMap[userID] - PLTimeMap[userID];
+            totalWaitInMS += userWait;
+        }
+
+        if (count === 0) {
+            return -1; //signal value that means no users have completed their wait in line yet.
+        }
+
+        //divide to get average.
+        let avgWaitInMS = totalWaitInMS / count;
+
+        //convert to minutes & round up.
+        let avgWaitInMinutes = Math.ceil(avgWaitInMS / MS_IN_ONE_MIN);
+        //DEBUG
+        /*console.log('total users logged: ' + count);
+        console.log('total wait time in MS: ' + totalWaitInMS);
+        console.log('avg wait time in MS: ' + avgWaitInMS);
+        console.log('avgWaitInMinutes: ' + avgWaitInMinutes);*/
+        return avgWaitInMinutes;
     });
 }
 
