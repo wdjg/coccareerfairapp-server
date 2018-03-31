@@ -73,7 +73,7 @@ function register(req, res) {
                     user.employer_id = found_emp._id;
                     return saveUser(res, user);
                 } else {
-                    return res.status(400).json({
+                    return res.status(404).json({
                         "message": response.authRegisterNoEmployerFound
                     });
                 }
