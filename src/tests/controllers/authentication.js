@@ -1,4 +1,4 @@
-// This file consists of tests purely for testing all of the api routes
+// This file consists of tests for authentication routes, login and register.
 import chai from 'chai'
 import chaiHttp from 'chai-http'
 // import validator from 'validator'
@@ -31,6 +31,7 @@ describe('Authentication API Tests', function() {
                     expect(err).to.be.null;
                     expect(res).to.have.status(200);
                     expect(res.body).to.have.property('token');
+                    expect(res.body).to.have.property('message');
                     done();
                 });
         });
@@ -47,6 +48,7 @@ describe('Authentication API Tests', function() {
                     expect(res).to.have.status(400);
                     expect(res.body.message).to.equal(response.authRegisterMissingFields);
                     expect(res.body).to.not.have.property('token');
+                    expect(res.body).to.have.property('message');
                     done();
                 });
         });
@@ -64,10 +66,11 @@ describe('Authentication API Tests', function() {
                         expect(res.body).to.have.property('message');
                         expect(res.body.message).to.equal(response.userAlreadyExists);
                         expect(res.body).to.not.have.property('token');
+                        expect(res.body).to.have.property('message');
                         done();
                     });
             });
-        })
+        });
     });
 
     describe('post /login', function() {
@@ -81,7 +84,8 @@ describe('Authentication API Tests', function() {
                 .end(function(err, res){
                     expect(err).to.be.null;
                     expect(res).to.have.status(200);
-                    expect(res.body).to.have.property('token')
+                    expect(res.body).to.have.property('token');
+                    expect(res.body).to.not.have.property('message');
                     done();
                 });
         });
@@ -96,6 +100,7 @@ describe('Authentication API Tests', function() {
                     expect(res).to.have.status(400);
                     expect(res.body.message).to.equal(response.authLoginMissingFields)
                     expect(res.body).to.not.have.property('token');
+                    expect(res.body).to.have.property('message');
                     done();
                 });
         });
@@ -111,6 +116,7 @@ describe('Authentication API Tests', function() {
                     expect(res).to.have.status(401);
                     expect(res.body.message).to.equal(response.authLoginInvalid)
                     expect(res.body).to.not.have.property('token');
+                    expect(res.body).to.have.property('message');
                     done();
                 });
         });
@@ -126,48 +132,9 @@ describe('Authentication API Tests', function() {
                     expect(res).to.have.status(401);
                     expect(res.body.message).to.equal(response.authLoginNoUserFound)
                     expect(res.body).to.not.have.property('token');
+                    expect(res.body).to.have.property('message');
                     done();
                 });
         });
     });
-
 });
-
-// describe('Models API Tests', function() {
-    // before(function(done) {
-    //     chai.request(app)
-    //         .post('/api/register')
-    //         .send(mockUser)
-    //         .end(function(err, res) {
-    //             expect(res.body.token).to.exist;
-    //             token = res.body.token; // Or something
-    //             done();
-    //         });
-    // });
-    
-    // describe('Users', function() {
-    //     describe('get /users', function() {
-    //         it('returns auth student user json', function() {
-    //             chai.request(app)
-    //                 .get('/api/users')
-    //                 .set({ Authorization: 'Bearer ' + token })
-    //                 .end(function(err, res) {
-    //                     validator.isMongoID(res.body._id).should.be.true
-    //                     res.body.name.should.exist
-    //                     res.body.user_type.should.equal('student')
-    //                     res.body.employer_id.should.be.null
-    //                     done()
-    //                 });
-    //         });
-    //     });
-    //     describe('get /users/:id', function() {
-
-    //     });
-    // });
-    // describe('Lines', function() {
-
-    // });
-    // describe('Employers', function(){
-
-    // });
-// });
