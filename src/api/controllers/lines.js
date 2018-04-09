@@ -280,12 +280,12 @@ function getMyPlaceByEmployerId(user_id, employer_id) {
 
 //helper: given employer_id, calculates the average wait time that has happened so far.
 //returns time in # of minutes (rounded up).
-function getAverageWaitTimeByEmployerId(emp_id) {
+function getAverageWaitTimeByEmployerId(employer_id) {
     //get all line events for this employer from the past 24 hours.
     //sort them by user_id, then by time of event.
     var yesterday = new Date() - MS_IN_ONE_DAY;
 
-    var todaysEvents = LineEvent.find({ employer_id: emp_id,
+    var todaysEvents = LineEvent.find({ employer_id: employer_id,
                                         created_by: {$gt: yesterday}})
                                         .sort({ user_id: -1, created_by: -1})
                                         .exec();
@@ -348,7 +348,7 @@ function getAverageWaitTimeByEmployerId(emp_id) {
 // get /lines/users?employer_id=xxxxx
 // get /lines/users
 function getUsersByEmployerId(req, res) {
-    //if auth user is a recruiter, their emp_id is used (ignore query; recruiters can only see their own batch)
+    //if auth user is a recruiter, their employer_id is used (ignore query; recruiters can only see their own batch)
     //else, use query parameter.
     //if query blank and auth user is not a recruiter, not allowed.
 
@@ -358,11 +358,11 @@ function getUsersByEmployerId(req, res) {
         });
     }
 
-    let emp_id;
+    let employer_id;
     if (req.user.user_type === 'recruiter') {
-        emp_id = req.user.employer_id;
+        employer_id = req.user.employer_id;
     } else if (req.query.employer_id) {
-        emp_id = req.query.employer_id;
+        employer_id = req.query.employer_id;
     } else {
         return res.status(401).json({
             "message": response.getLinesUsersMissingEmployerId
@@ -371,7 +371,7 @@ function getUsersByEmployerId(req, res) {
 
     var user_ids = [];
     var userIdsToLineIds = {};
-    var query = Line.find({ employer_id: emp_id }).where({ status: "inline" }).sort({ updated_by: -1 });
+    var query = Line.find({ employer_id: employer_id }).where({ status: "inline" }).sort({ updated_by: -1 });
 
     return query.exec(function (err, lines) {
         if (err)
