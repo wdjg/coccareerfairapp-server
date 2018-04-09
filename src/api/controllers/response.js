@@ -25,7 +25,7 @@ let messages =  {
     // users
     getUsersOnlyAdmin: "UnauthorizedError: Only available to admin",
     patchUsersMissingDataBody: "InputError: Missing data in body",
-    profileNoAdmins: "UnauthorizedError: Admins don't have profiles",
+    profileNoAdmins: "UnauthorizedError: Admins do not have profiles",
 
     // lines
     postLinesAlreadyExists: "UniqueError: Line for this user already exists",
@@ -33,7 +33,7 @@ let messages =  {
     getLineStatsMissingEmployerId: "InputError: Needs employer_id as a query parameter in url",
 
     // lineEvents
-    getLineEventsByAuthUserUnauthorizedUserIdQuery: "UnauthorizedError: Attempting to access other user line info. Don't put user_id in your query",
+    getLineEventsByAuthUserUnauthorizedUserIdQuery: "UnauthorizedError: Attempting to access other user line info. do not put user_id in your query",
 
     // employers
     // getEmployersMissingNameQuery: "InputError: Missing name parameter in query",
@@ -48,7 +48,7 @@ let messages =  {
     // misc
     success: "Success",
     deleteSuccess: (num) => "Success: Deleted " + num + " element(s)", //assumes num > 0
-    deleteNotFound: "NotFound: Queried item(s) don't exist"
+    deleteNotFound: "NotFound: Queried item(s) do not exist"
 
 }
 
