@@ -7,6 +7,8 @@ import validator from 'validator'
 import response from '../api/controllers/response.js'
 import mongoose from 'mongoose'
 
+const factory = require('factory-girl').factory;
+
 const expect = chai.expect
 const should = chai.should()
 
@@ -21,6 +23,7 @@ chai.use(chaiHttp);
 // export default { shouldBeAuthenticated } 
 
 function clearDatabase() {
+    factory.cleanUp();
     for (var collection in mongoose.connection.collections) {
         mongoose.connection.collections[collection].remove(function () { });
     }
