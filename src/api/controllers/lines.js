@@ -97,7 +97,7 @@ async function skipAhead(line) {
         var batchSize = Line.getBatchSize();
         //console.log('current size is %s, batch max is %s', curSize, batchSize); //DEBUG
         if (curSize <= batchSize) {
-            // active batch isn't full. Send them directly in line
+            // active batch is not full. Send them directly in line
             //console.log('So, attempting to skip ahead'); //DEBUG
             var statusMsg = await line.updateStatus("inline");
             if (statusMsg === 'success') {
@@ -199,7 +199,7 @@ function getStatsByEmployerIdNoAuth(req, res) {
 
     var size = getSizeByEmployerId(req.query.employer_id);
     var avgWait = getAverageWaitTimeByEmployerId(req.query.employer_id);
-    
+
     Promise.all([size, avgWait]).then(function(values) {
         //console.log('size = ' + values[0]); //debug
         res.status(200).json({
@@ -229,13 +229,13 @@ function getMyPlaceByEmployerId(user_id, employer_id) {
                                        employer_id: employer_id }).exec();
     return myCurrentLine.then(function (myLine) {
         if (!myLine) {
-            return null; //you're not in line for this employer.
+            return null; //you are not in line for this employer.
         }
 
         var status = myLine.status;
         switch (status) {
             case 'startrecruiter':
-                return 0; //if you're already talking to the recruiter, you're at the front.
+                return 0; //if you are already talking to the recruiter, you are at the front.
                 break;
 
             case 'inline':
@@ -272,20 +272,20 @@ function getMyPlaceByEmployerId(user_id, employer_id) {
                 break;
 
             default:
-                return -1; //line exists, but you don't have a status that can really be considered in line.
+                return -1; //line exists, but you do not have a status that can really be considered in line.
                 break;
         }
     });
 }
 
-//helper: given employer_id, calculates the average wait time that has happened so far. 
+//helper: given employer_id, calculates the average wait time that has happened so far.
 //returns time in # of minutes (rounded up).
-function getAverageWaitTimeByEmployerId(emp_id) {
+function getAverageWaitTimeByEmployerId(employer_id) {
     //get all line events for this employer from the past 24 hours.
     //sort them by user_id, then by time of event.
     var yesterday = new Date() - MS_IN_ONE_DAY;
 
-    var todaysEvents = LineEvent.find({ employer_id: emp_id,
+    var todaysEvents = LineEvent.find({ employer_id: employer_id,
                                         created_by: {$gt: yesterday}})
                                         .sort({ user_id: -1, created_by: -1})
                                         .exec();
@@ -306,7 +306,7 @@ function getAverageWaitTimeByEmployerId(emp_id) {
             } else if (thisEvent.status === 'preline') {
                 //array should be sorted in descending time order, so make sure there's a corresponding SR entry.
                 if (thisEvent.user_id in SRTimeMap) {
-                    //make sure there isn't a PL entry - if there is, then this is an older event when they entered the line,
+                    //make sure there is not a PL entry - if there is, then this is an older event when they entered the line,
                     //but subsequently left (for whatever reason), which we want to ignore.
                     if (!(thisEvent.user_id in PLTimeMap)) {
                         PLTimeMap[thisEvent.user_id] = thisEvent.created_by;
@@ -348,9 +348,9 @@ function getAverageWaitTimeByEmployerId(emp_id) {
 // get /lines/users?employer_id=xxxxx
 // get /lines/users
 function getUsersByEmployerId(req, res) {
-    //if auth user is a recruiter, their emp_id is used (ignore query; recruiters can only see their own batch)
+    //if auth user is a recruiter, their employer_id is used (ignore query; recruiters can only see their own batch)
     //else, use query parameter.
-    //if query blank and auth user isn't a recruiter, not allowed.
+    //if query blank and auth user is not a recruiter, not allowed.
 
     if (req.user.user_type === 'student'){
         return res.status(401).json({
@@ -358,11 +358,11 @@ function getUsersByEmployerId(req, res) {
         });
     }
 
-    let emp_id;
+    let employer_id;
     if (req.user.user_type === 'recruiter') {
-        emp_id = req.user.employer_id;
+        employer_id = req.user.employer_id;
     } else if (req.query.employer_id) {
-        emp_id = req.query.employer_id;
+        employer_id = req.query.employer_id;
     } else {
         return res.status(401).json({
             "message": response.getLinesUsersMissingEmployerId
@@ -371,7 +371,7 @@ function getUsersByEmployerId(req, res) {
 
     var user_ids = [];
     var userIdsToLineIds = {};
-    var query = Line.find({ employer_id: emp_id }).where({ status: "inline" }).sort({ updated_by: -1 });
+    var query = Line.find({ employer_id: employer_id }).where({ status: "inline" }).sort({ updated_by: -1 });
 
     return query.exec(function (err, lines) {
         if (err)
@@ -392,7 +392,7 @@ function getUsersByEmployerId(req, res) {
             if (err)
                 return res.send(err);
 
-            //We don't know what order the users are returned in,
+            //We do not know what order the users are returned in,
             //but we need to match them to the corresponding line_ids.
             for (var i = 0; i < users.length; i++) {
                 users[i].line_id = userIdsToLineIds[users[i]._id];
