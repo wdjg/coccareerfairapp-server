@@ -175,15 +175,19 @@ function patchFavoritesByAuthUser(req, res) {
 
 // delete users/:id
 function deleteUser(req, res) {
-
-    User.remove({_id: req.params.id}).exec(function (err, user) {
-        if (err)
-            res.send(err);
-        res.status(200).json({
-            "message": response.success
+    if (req.user.user_type !== 'admin') {
+        return res.status(403).json({
+            "message": response.onlyAdmins
         });
-    });
-
+    } else {
+        User.remove({_id: req.params.id}).exec(function (err, user) {
+            if (err)
+                return res.send(err);
+            return res.status(200).json({
+                "message": response.success
+            });
+        });
+    }
 };
 
 export default { getUsers, getUserByAuthUser, getUserById, patchProfileByAuthUser, getFavoritesByAuthUser, patchFavoritesByAuthUser, deleteUser }
