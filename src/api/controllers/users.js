@@ -26,7 +26,7 @@ function getUsers(req, res) {
 
 // get /users/auth
 function getUserByAuthUser(req, res) {
-    
+
     User.findById(req.user._id).exec(function (err, user) {
         if (err)
             return res.send(err);
@@ -70,7 +70,7 @@ function patchProfileByAuthUser(req, res) {
                 "message": err
             });
         }
-        
+
     } else if (req.user.user_type === 'recruiter') {
 
         try {
@@ -173,4 +173,21 @@ function patchFavoritesByAuthUser(req, res) {
     }
 }
 
-export default { getUsers, getUserByAuthUser, getUserById, patchProfileByAuthUser, getFavoritesByAuthUser, patchFavoritesByAuthUser } 
+// delete users/:id
+function deleteUser(req, res) {
+    if (req.user.user_type !== 'admin') {
+        return res.status(403).json({
+            "message": response.onlyAdmins
+        });
+    } else {
+        User.remove({_id: req.params.id}).exec(function (err, user) {
+            if (err)
+                return res.send(err);
+            return res.status(200).json({
+                "message": response.success
+            });
+        });
+    }
+};
+
+export default { getUsers, getUserByAuthUser, getUserById, patchProfileByAuthUser, getFavoritesByAuthUser, patchFavoritesByAuthUser, deleteUser }
