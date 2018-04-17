@@ -170,17 +170,20 @@ function getStatsByEmployerId(req, res) {
         });
     }
 
+    let emp_id = req.query.employer_id;
     //use promises to have queries run async. in parallel.
-    var size = getSizeByEmployerId(req.query.employer_id)
-    var currentPlace = getMyPlaceByEmployerId(req.user._id, req.query.employer_id)
-    var avgWait = getAverageWaitTimeByEmployerId(req.query.employer_id)
+    var size = getSizeByEmployerId(emp_id)
+    var currentPlace = getMyPlaceByEmployerId(req.user._id, emp_id)
+    var avgWait = getAverageWaitTimeByEmployerId(emp_id)
+    var avgInterview = getAverageInterviewTimeByEmployerId(emp_id)
 
-    Promise.all([size, currentPlace, avgWait]).then(function(values) {
+    Promise.all([size, currentPlace, avgWait, avgInterview]).then(function(values) {
         //console.log('size = ' + values[0] + ', myPlace = ' + values[1]); //debug
         res.status(200).json({
             "size": values[0],
             "myPlace": values[1],
-            "averageWaitMinutes": values[2]
+            "averageWaitMinutes": values[2],
+            "averageInterviewMinutes": values[3]
         });
     }).catch ( function(err) {
         res.send(err);
@@ -197,14 +200,18 @@ function getStatsByEmployerIdNoAuth(req, res) {
         });
     }
 
-    var size = getSizeByEmployerId(req.query.employer_id);
-    var avgWait = getAverageWaitTimeByEmployerId(req.query.employer_id);
+    let emp_id = req.query.employer_id;
 
-    Promise.all([size, avgWait]).then(function(values) {
+    var size = getSizeByEmployerId(emp_id);
+    var avgWait = getAverageWaitTimeByEmployerId(emp_id);
+    var avgInterview = getAverageInterviewTimeByEmployerId(emp_id);
+    
+    Promise.all([size, avgWait, avgInterview]).then(function(values) {
         //console.log('size = ' + values[0]); //debug
         res.status(200).json({
             "size": values[0],
-            "averageWaitMinutes": values[1]
+            "averageWaitMinutes": values[1],
+            "averageInterviewMinutes": values[2]
         });
     }).catch ( function(err) {
         res.send(err);
@@ -283,10 +290,11 @@ function getMyPlaceByEmployerId(user_id, employer_id) {
 function getAverageWaitTimeByEmployerId(employer_id) {
     //get all line events for this employer from the past 24 hours.
     //sort them by user_id, then by time of event.
-    var yesterday = new Date() - MS_IN_ONE_DAY;
+    var startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0); //sets to today at midnight
 
     var todaysEvents = LineEvent.find({ employer_id: employer_id,
-                                        created_by: {$gt: yesterday}})
+                                        created_by: {$gt: startOfToday}})
                                         .sort({ user_id: -1, created_by: -1})
                                         .exec();
 
@@ -343,6 +351,72 @@ function getAverageWaitTimeByEmployerId(employer_id) {
         console.log('avgWaitInMinutes: ' + avgWaitInMinutes);*/
         return avgWaitInMinutes;
     });
+}
+
+//helper: given employer_id, calculates the average interview time that has happened so far. 
+//returns time in # of minutes (rounded up).
+function getAverageInterviewTimeByEmployerId(emp_id) {
+//get all line events for this employer from the past 24 hours.
+    //sort them by user_id, then by time of event.
+    var startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0); //sets to today at midnight
+
+    var todaysEvents = LineEvent.find({ employer_id: emp_id,
+                                        created_by: {$gt: startOfToday}})
+                                        .sort({ user_id: -1, created_by: -1})
+                                        .exec();
+
+    return todaysEvents.then(function (lineEvents) {
+        //make a pass through that checks for corresponding startrecruiter/finishrecruiter events from the same user_id.
+        var SRTimeMap = {};
+        var FRTimeMap = {};
+
+        for (var i = 0; i < lineEvents.length; i++) {
+            let thisEvent = lineEvents[i];
+            //console.log("checking out event: " + thisEvent); //debug
+            if (thisEvent.status === 'finishrecruiter') {
+                if (!(thisEvent.user_id in FRTimeMap)) { //not sure if this check is actually necessary
+                    FRTimeMap[thisEvent.user_id] = thisEvent.created_by;
+                }
+                continue;
+            } else if (thisEvent.status === 'startrecruiter') {
+                //this check probably isn't necessary since finishrecruiter can only follow from startrecruiter,
+                //and startrecruiter can only progress forward to finishrecruiter.
+                //Unlike preline, which can end in voluntarychurn or timeoutchurn.
+                if (!(thisEvent.user_id in SRTimeMap)) {
+                    SRTimeMap[thisEvent.user_id] = thisEvent.created_by;
+                }
+            }
+        }
+
+        //now, iterate through FRTimeMap (if a uID is here, it's also in SRTimeMap).
+        //subtract startrecruiter time from finishrecruiter time for each user_id.
+        //keep a rolling sum & count of interview times.
+        var count = 0;
+        var totalInterviewInMS = 0;
+
+        for (var userID in FRTimeMap) {
+            count++;
+            let userInterview = FRTimeMap[userID] - SRTimeMap[userID];
+            totalInterviewInMS += userInterview;
+        }
+
+        if (count === 0) {
+            return -1; //signal value that means no users have completed interviews yet.
+        }
+
+        //divide to get average.
+        let avgInterviewInMS = totalInterviewInMS / count;
+
+        //convert to minutes & round up.
+        let avgInterviewInMinutes = Math.ceil(avgInterviewInMS / MS_IN_ONE_MIN);
+        //DEBUG
+        /*console.log('total users logged: ' + count);
+        console.log('total interview time in MS: ' + totalInterviewInMS);
+        console.log('avg interview time in MS: ' + avgInterviewInMS);
+        console.log('avgInterviewInMinutes: ' + avgInterviewInMinutes);*/
+        return avgInterviewInMinutes;
+    });    
 }
 
 // get /lines/users?employer_id=xxxxx
