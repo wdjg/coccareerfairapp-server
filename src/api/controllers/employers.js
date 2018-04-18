@@ -6,6 +6,28 @@ const Line = mongoose.model('Line');
 
 import response from './response.js'
 
+// HELPERS
+/**
+ * Returns random float from range
+ * @param  {float} min minimum random range (inclusive)
+ * @param  {float} max maximum random range (exclusive)
+ * @return {float}     random value
+ */
+function rand(min, max) {
+    return min + Math.random() * (max - min);
+}
+
+/**
+ * Generate a random color string with HSL
+ * @return {String} css hsl() color string
+ */
+function get_random_color() {
+    var h = rand(1, 360);
+    var s = rand(70, 90);
+    var l = rand(60, 80);
+    return 'hsl(' + h + ',' + s + '%,' + l + '%)';
+}
+
 // get employers/:id
 function getEmployerById(req, res) {
     Employer.findById(req.params.id).exec(function (err, employer) {
@@ -46,6 +68,10 @@ function createEmployer(req, res) {
     } else {
         var employer = Employer();
         employer.name = req.body.name
+        if (!req.body.color)
+            employer.color = get_random_color()
+        else
+            employer.color = req.body.color
         employer.save(function(err){
             if(err)
                 return res.send(err);

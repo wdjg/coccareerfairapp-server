@@ -16,6 +16,22 @@ var employerSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
+    color: {
+        type: String,
+        default: '#f3c148'
+    },
+    type: {
+        type: String,
+    },
+    overview: {
+        type: String,
+    },
+    website: {
+        type: String,
+    },
+    attending: {
+        type: Date,
+    }
 });
 
 mongoose.model('Employer', employerSchema);
