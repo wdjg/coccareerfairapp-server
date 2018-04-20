@@ -19,7 +19,7 @@ async function demoSeed() {
         employer.passcode = 111111;
         try {
             employer = await employer.save();
-            console.log('SEEDER: Created employer named "' + dbemployer.name + '" with passcode "' + dbemployer.passcode + '"');
+            console.log('SEEDER: Created employer named "' + employer.name + '" with passcode "' + employer.passcode + '"');
         } catch (err) {
             console.log(err);
         }
