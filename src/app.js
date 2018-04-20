@@ -61,15 +61,13 @@ app.use('/api', routesApi);
 //     res.sendFile(path.join(__dirname, 'app_client', 'index.html'));
 // });
 
-// app.use(function (req, res, next) {
-//     res.header("Access-Control-Allow-Origin", "*");
-//     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-//     next();
-// });
+// SEEEEEEEED
+import seeder from './seeds/seeder.js'
 
-app.get('/', function (req, res, next) {
+app.get('/seed', function(req, res, next){
+    seeder.demoSeed();
     res.status(200).json({
-        message: "JOHN ARE U IN"
+        message: "Database cleared for seeding."
     });
     next();
 });

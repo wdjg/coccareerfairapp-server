@@ -1,8 +1,8 @@
 import mongoose from 'mongoose'
 import idvalidator from 'mongoose-id-validator'
 import randomstring from 'randomstring'
+import Employer from './employers.js'
 const Schema = mongoose.Schema;
-const Employer = mongoose.model('Employer');
 
 var qrCodeValueSchema = new Schema({
     qr_code_value: {
@@ -57,4 +57,5 @@ qrCodeValueSchema.statics.deleteExpired = function () {
     });
 }
 
-module.exports = mongoose.model('QRCodeValue', qrCodeValueSchema);
+var QRCodeValue = mongoose.model('QRCodeValue', qrCodeValueSchema);
+module.exports = QRCodeValue;

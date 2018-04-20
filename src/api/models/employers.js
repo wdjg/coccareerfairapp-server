@@ -58,4 +58,5 @@ employerSchema.statics.generateRandomCode = function() {
     return Math.floor(Math.random() * EMPLOYER_LIMIT + 100000);
 }
 
-mongoose.model('Employer', employerSchema);
+var Employer = mongoose.model('Employer', employerSchema);
+module.exports = Employer;
