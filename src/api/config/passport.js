@@ -3,28 +3,44 @@ import local from 'passport-local'
 import mongoose from 'mongoose'
 import response from '../controllers/response.js'
 
-var User = mongoose.model('User');
+import { User, Student, Recruiter, Admin } from '../models/users.js'
 
 passport.use(new local.Strategy({
     usernameField: 'email'
 },
-    function (username, password, done) {
-        User.findOne({ email: username }, ["+salt", "+hash"], function (err, user) {
-            if (err) { return done(err); }
-            // Return if user not found in database
-            if (!user) {
-                return done(null, false, {
-                    message: response.authLoginNoUserFound
-                });
+    async function (username, password, done) {
+        var query = User.findOne({email: username});
+        try {
+            var user = await query.exec();
+            switch (user.user_type) {
+                case 'student':
+                    query = Student.findOne({email: username}, ["+salt", "+hash"]);
+                    break;
+                case 'recruiter':
+                    query = Recruiter.findOne({email: username}, ["+salt", "+hash"]);
+                    break;
+                case 'admin':
+                    query = Admin.findOne({email: username}, ["+salt", "+hash"]);
+                    break;
             }
-            // Return if password is wrong
-            if (!user.validPassword(password)) {
-                return done(null, false, {
-                    message: response.authLoginInvalid
-                });
-            }
-            // If credentials are correct, return the user object
-            return done(null, user);
-        });
+
+            user = await query.exec();
+        } catch (err) {
+            return done(err);
+        }
+        
+        if (!user) {
+            return done(null, false, {
+                message: response.authLoginNoUserFound
+            });
+        }
+        // Return if password is wrong
+        if (!user.validPassword(password)) {
+            return done(null, false, {
+                message: response.authLoginInvalid
+            });
+        }
+        // If credentials are correct, return the user object
+        return done(null, user);
     }
 ));
