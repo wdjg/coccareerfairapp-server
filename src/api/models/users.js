@@ -3,8 +3,8 @@ import crypto from 'crypto'
 import jwt from 'jsonwebtoken'
 import idvalidator from 'mongoose-id-validator'
 import MongooseValidator from 'mongoose-validatorjs'
+import Employer from './employers.js'
 const Schema = mongoose.Schema;
-const Employer = mongoose.model('Employer');
 
 var options = { discriminatorKey: 'user_type' };
 
@@ -127,4 +127,4 @@ var Student = User.discriminator('student', studentSchema);
 var Recruiter = User.discriminator('recruiter', recruiterSchema);
 var Admin = User.discriminator('admin', adminSchema);
 
-module.exports = { User, Student, Recruiter, Admin};
+module.exports = { User, Student, Recruiter, Admin };

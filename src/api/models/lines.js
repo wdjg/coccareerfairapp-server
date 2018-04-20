@@ -1,8 +1,8 @@
 import mongoose from 'mongoose'
 import MongooseValidator from 'mongoose-validatorjs'
 import idvalidator from 'mongoose-id-validator'
+import LineEvent from './lineEvents.js'
 const Schema = mongoose.Schema;
-const LineEvent = mongoose.model('LineEvent')
 
 const BATCH_SIZE = 5;
 
@@ -139,4 +139,5 @@ lineSchema.statics.getBatchSize = function() {
     return BATCH_SIZE;
 }
 
-mongoose.model('Line', lineSchema);
+var Line = mongoose.model('Line', lineSchema);
+module.exports = Line;

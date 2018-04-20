@@ -36,4 +36,5 @@ var lineEventSchema = new mongoose.Schema({
 lineEventSchema.plugin(idvalidator);
 
 
-mongoose.model('LineEvent', lineEventSchema);
+var LineEvent = mongoose.model('LineEvent', lineEventSchema);
+module.exports = LineEvent;
