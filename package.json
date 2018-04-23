@@ -5,9 +5,7 @@
   "main": "./dist/app.js",
   "scripts": {
     "start": "npm run build; node ./dist/app.js",
-    "dev": "npm run watch; nodemon --watch dist",
     "build": "babel src -d dist --ignore src/tests --copy-files",
-    "watch": "babel -w src -d dist --ignore src/tests --copy-files",
     "clean": "rm -rf dist",
     "test": "NODE_ENV=test mocha --exit --compilers js:babel-register --recursive ./src/tests/"
   },
