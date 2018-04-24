@@ -1,14 +1,14 @@
 # CoC Career Fair App
 [![Run in Postman](https://run.pstmn.io/button.svg)](https://www.getpostman.com/collections/9c7004b490f65bc97dd5)
 
-#### Junior Design 7359
+## Junior Design 7359
 Brian Wang
 Jesse Hayes
 John Britti
 Naren Dikkala
 Wiqas Nassar
 
-#### Description
+## Description
 This is the backend server handling database and api calls for the Coc Career Fair App at Georgia Tech. Server is built on the MERN stack (MongoDB, Express, React, Nodejs).
 
 This repository only includes the back-end portion of this project, which consists of the API and the database.
@@ -29,8 +29,14 @@ jacket-server-production.herokuapp.com // server production box
 
 If you need access to this Repository, Heroku, Zenhub, or other documents, please see the contact information below.
 
-#### Install Guide
+## Quick Start
 First install node and npm by going to this [website](https://nodejs.org/en/)
+
+Clone the repository and open a command line/bash terminal to that directory.
+```
+git clone https://github.com/wdjg/coccareerfairapp-server.git
+cd coccareerfairapp-server
+```
 
 Make sure you can run these two commands and that they show the most recent version.
 ```
@@ -54,6 +60,7 @@ Then install packages using npm.
 npm install
 ```
 
+## To Run...
 To run this, run this command
 ```
 npm start
@@ -67,7 +74,7 @@ npm run clean // deletes the dist folder
 npm test // runs mocha and chai tests
 ```
 
-#### Release Notes
+## Release Notes (Version 1.0)
 API routes: see https://documenter.getpostman.com/view/3884721/coccareerfairapp/RVnTmgYP
 
 Cron jobs:
@@ -97,7 +104,10 @@ updateAllTimeout.js
     * Anyway, to provide an incentive to NOT just sit on a notification, this cron job should check on everyone that has 'notification' status, and check (via lineEvents) how long it has been since they received that status. If it's been too long (example value in the file is 10 minutes, but we've usually been telling people 5 minutes),	the student gets forcibly removed from the line, via updating their status to "timeoutchurn".
       * Updating their status to "timeoutchurn" will automatically log a lineEvent and then delete the line entry.
 
-#### Contact Information
+## Known Bugs
+No currently known bugs. Most bugs have been squashed.
+
+## Contact Information
 Brian Wang at brianwang9100@gmail.com
 
 Jesse Hayes at jhayes@gatech.edu
